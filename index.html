@@ -265,6 +265,14 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif
 }
 .toast.show{opacity:1}
 
+/* ── 이름 자동완성 드롭다운 ── */
+#rName:focus + #nameDropdown,
+#nameDropdown:not([style*="display: none"]){
+  /* 드롭다운 표시 중일 때 이름 input 하단 radius 제거 */
+}
+.name-input-open{border-radius:10px 10px 0 0!important;border-bottom-color:#1d4ed8!important}
+#nameDropdown{border-top:none}
+
 /* ── 빈 상태 ── */
 .empty-state{text-align:center;padding:40px 20px;color:#9ca3af}
 .empty-state .emo{font-size:36px;margin-bottom:10px}
@@ -309,16 +317,41 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif
     <div id="fReg" style="display:none">
       <div id="regErr" class="err"></div>
       <div id="regOk" class="ok"></div>
+
       <div class="fg"><label>학번 (아이디)</label>
         <input id="rId" type="text" placeholder="예: 202510029" maxlength="12" inputmode="numeric">
         <div class="hint">학번이 로그인 ID로 사용됩니다</div>
       </div>
-      <div class="fg"><label>이름</label><input id="rName" type="text" placeholder="본인 이름" autocomplete="name"></div>
-      <div class="fg"><label>학과(전공)</label><input id="rDept" type="text" placeholder="예: 식품영양학과"></div>
-      <div class="fg"><label>소속 단체</label>
-        <select id="rOrg"><option value="">선택하세요</option><option>학생자치위원회</option><option>대의원회</option><option>과대표</option></select>
+
+      <div class="fg"><label>이름</label>
+        <input id="rName" type="text" placeholder="본인 이름 입력" autocomplete="name" oninput="onNameInput()" autocomplete="off">
+        <!-- 이름 검색 결과 드롭다운 -->
+        <div id="nameDropdown" style="display:none;border:1.5px solid #1d4ed8;border-top:none;border-radius:0 0 10px 10px;background:#fff;max-height:180px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1);position:relative;z-index:10"></div>
       </div>
-      <div class="fg"><label>직위</label><input id="rPos" type="text" placeholder="예: 위원장, 과대표"></div>
+
+      <!-- 자동완성된 정보 표시 카드 -->
+      <div id="autoFilledCard" style="display:none;background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:11px 14px;margin-bottom:13px">
+        <div style="font-size:11px;font-weight:700;color:#1d4ed8;margin-bottom:7px">✅ 명단에서 자동으로 불러왔습니다</div>
+        <div id="autoFilledInfo" style="font-size:13px;color:#1e293b;line-height:1.8"></div>
+      </div>
+
+      <!-- 명단 미등록시 수동 입력 -->
+      <div id="manualFields" style="display:none">
+        <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:12px;color:#92400e">
+          ⚠️ 명단에서 찾을 수 없습니다. 직접 입력하거나 관리자에게 문의하세요.
+        </div>
+        <div class="fg"><label>학과(전공)</label><input id="rDept" type="text" placeholder="예: 식품영양학과"></div>
+        <div class="fg"><label>소속 단체</label>
+          <select id="rOrg"><option value="">선택하세요</option><option>학생자치위원회</option><option>대의원회</option><option>과대표</option></select>
+        </div>
+        <div class="fg"><label>직위</label><input id="rPos" type="text" placeholder="예: 위원장, 과대표"></div>
+      </div>
+
+      <!-- 숨김 필드 (자동완성값 저장) -->
+      <input id="rDeptHidden" type="hidden">
+      <input id="rOrgHidden" type="hidden">
+      <input id="rPosHidden" type="hidden">
+
       <div class="fg"><label>비밀번호 (8자 이상)</label><input id="rPw" type="password" placeholder="영문+숫자 혼합 권장" autocomplete="new-password"></div>
       <div class="fg"><label>비밀번호 확인</label><input id="rPw2" type="password" placeholder="비밀번호 재입력" autocomplete="new-password"></div>
       <button class="btn-login" onclick="doRegister()">가입하기</button>
@@ -506,31 +539,242 @@ function getWeeks(year,month){
 // ═══ 현재 유저 ═══
 let CU=null;
 
+// ════════════════════════════════════════════════
+// 간부 명단 (admin.html과 동일, localStorage 공유)
+// ════════════════════════════════════════════════
+const DEF_MEMBERS={
+  '학생자치위원회':[
+    {name:'윤채원',dept:'식품영양학과',           position:'위원장'},
+    {name:'최서우',dept:'건강웰니스학과 스포츠재활전공',position:'부위원장'},
+    {name:'박예진',dept:'보건의료행정학과',        position:'총무부장'},
+    {name:'김나은',dept:'호텔외식조리학과',        position:'기획부장'},
+    {name:'이민우',dept:'기계공학과',             position:'활동부장'},
+    {name:'오제혁',dept:'응급구조학과',           position:'사회체육부장'},
+    {name:'황기범',dept:'보건의료행정학과',        position:'문화복지부장'},
+    {name:'김민석',dept:'방송예술학과 방송연예전공',position:'홍보부장'},
+  ],
+  '대의원회':[
+    {name:'나우진',dept:'광고미디어전공',   position:'의장'},
+    {name:'임채윤',dept:'보건의료행정학과', position:'부의장'},
+    {name:'신보성',dept:'식품영양학과',     position:'총무부장'},
+    {name:'한가령',dept:'방송미디어학과',   position:'문화복지부장'},
+    {name:'박고은',dept:'시각디자인학과',   position:'기획부장'},
+  ],
+  '과대표':[
+    {name:'기유민',dept:'작업치료학과',              position:'과대표'},
+    {name:'김명연',dept:'생활디자인학과',             position:'과대표'},
+    {name:'김민서',dept:'컴퓨터공학과',              position:'과대표'},
+    {name:'박주영',dept:'IT정보통신학과',            position:'과대표'},
+    {name:'박준영',dept:'기계공학과 소방설비안전전공', position:'과대표'},
+    {name:'박희진',dept:'멀티디자인학과',             position:'과대표'},
+    {name:'소지언',dept:'반려동물보건학과',            position:'과대표'},
+    {name:'정자은',dept:'경영학과',                  position:'과대표'},
+    {name:'조아현',dept:'항공서비스학과',             position:'과대표'},
+    {name:'최종현',dept:'전기공학과',                position:'과대표'},
+    {name:'하나경',dept:'의료뷰티학과',               position:'과대표'},
+    {name:'한민영',dept:'안전소방학과 산업안전전공',   position:'과대표'},
+    {name:'황연수',dept:'글로벌관광학과',             position:'과대표'},
+    {name:'황윤지',dept:'방송미디어학과',             position:'과대표'},
+    {name:'황정윤',dept:'유한생명바이오학과',          position:'과대표'},
+  ]
+};
+
+// localStorage에 저장된 명단이 있으면 병합해서 사용 (admin에서 추가한 것도 반영)
+function getAllMembers(){
+  const stored=S.get('members');
+  if(!stored) return DEF_MEMBERS;
+  // stored에 없는 기본 멤버도 포함 (병합)
+  const merged={};
+  Object.keys(DEF_MEMBERS).forEach(org=>{
+    const base=DEF_MEMBERS[org];
+    const extra=(stored[org]||[]).filter(m=>!base.some(b=>b.name===m.name));
+    merged[org]=[...base,...extra];
+  });
+  return merged;
+}
+
+// 전체 명단을 플랫 배열로
+function flatMembers(){
+  const all=getAllMembers();
+  return Object.keys(all).flatMap(org=>all[org].map(m=>({...m,org})));
+}
+
+// ════════════════════════════════════════════════
+// 이름 자동완성 로직
+// ════════════════════════════════════════════════
+let _autoSelected=null; // 자동완성으로 선택된 멤버
+
+function onNameInput(){
+  const q=document.getElementById('rName').value.trim();
+  const nameInp=document.getElementById('rName');
+  _autoSelected=null;
+  hideAutoFilled();
+
+  if(!q){
+    closeDropdown();
+    hideManualFields();
+    return;
+  }
+
+  const results=flatMembers().filter(m=>m.name.includes(q));
+  const dd=document.getElementById('nameDropdown');
+  nameInp.classList.add('name-input-open');
+
+  if(!results.length){
+    // 일치 없음 → 수동 입력 안내
+    dd.innerHTML=`<div style="padding:12px 14px;font-size:12px;color:#94a3b8;text-align:center">일치하는 간부 없음 — 직접 입력</div>`;
+    dd.style.display='block';
+    showManualFields();
+    return;
+  }
+
+  dd.style.display='block';
+  dd.innerHTML=results.map((m,i)=>`
+    <div
+      onclick="selectMember(${i})"
+      data-idx="${i}"
+      style="padding:11px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;transition:background .1s"
+      onmouseover="this.style.background='#eff6ff'"
+      onmouseout="this.style.background=''"
+    >
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1e293b">${m.name}</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">${m.dept}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;font-weight:700;color:#1d4ed8">${m.org}</div>
+        <div style="font-size:11px;color:#64748b">${m.position}</div>
+      </div>
+    </div>`).join('');
+
+  // 저장용 데이터 임시 주입
+  dd.querySelectorAll('[data-idx]').forEach((el,i)=>{
+    el.addEventListener('click',()=>selectMemberByData(results[i]));
+  });
+  dd.innerHTML=''; // 이벤트 방식으로 재구성
+  results.forEach((m)=>{
+    const div=document.createElement('div');
+    div.style.cssText='padding:11px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center';
+    div.innerHTML=`
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1e293b">${m.name}</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">${m.dept}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:8px">
+        <div style="font-size:11px;font-weight:700;color:#1d4ed8">${m.org}</div>
+        <div style="font-size:11px;color:#64748b">${m.position}</div>
+      </div>`;
+    div.addEventListener('touchstart',()=>div.style.background='#eff6ff',{passive:true});
+    div.addEventListener('touchend',()=>div.style.background='');
+    div.addEventListener('mouseover',()=>div.style.background='#eff6ff');
+    div.addEventListener('mouseout',()=>div.style.background='');
+    div.addEventListener('click',()=>selectMemberByData(m));
+    dd.appendChild(div);
+  });
+}
+
+function selectMemberByData(m){
+  // 이름 필드에 선택된 이름 세팅
+  document.getElementById('rName').value=m.name;
+  _autoSelected=m;
+
+  // 숨김 필드에 값 저장
+  document.getElementById('rDeptHidden').value=m.dept;
+  document.getElementById('rOrgHidden').value=m.org;
+  document.getElementById('rPosHidden').value=m.position;
+
+  // 자동완성 카드 표시
+  document.getElementById('autoFilledInfo').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div style="display:flex;gap:8px"><span style="color:#64748b;width:60px;font-size:12px">학과</span><strong style="font-size:13px">${m.dept}</strong></div>
+      <div style="display:flex;gap:8px"><span style="color:#64748b;width:60px;font-size:12px">소속</span><strong style="font-size:13px">${m.org}</strong></div>
+      <div style="display:flex;gap:8px"><span style="color:#64748b;width:60px;font-size:12px">직위</span><strong style="font-size:13px">${m.position}</strong></div>
+    </div>`;
+  document.getElementById('autoFilledCard').style.display='block';
+
+  // 수동 입력 숨김
+  hideManualFields();
+  closeDropdown();
+}
+
+function closeDropdown(){
+  document.getElementById('nameDropdown').style.display='none';
+  const ni=document.getElementById('rName');
+  if(ni) ni.classList.remove('name-input-open');
+}
+function showManualFields(){
+  document.getElementById('manualFields').style.display='block';
+  document.getElementById('autoFilledCard').style.display='none';
+}
+function hideManualFields(){
+  document.getElementById('manualFields').style.display='none';
+}
+function hideAutoFilled(){
+  document.getElementById('autoFilledCard').style.display='none';
+  document.getElementById('rDeptHidden').value='';
+  document.getElementById('rOrgHidden').value='';
+  document.getElementById('rPosHidden').value='';
+}
+
+// 외부 클릭시 드롭다운 닫기
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#fReg')) closeDropdown();
+});
+
 // ══ 로그인 탭 전환 ══
 function switchLTab(t){
   document.querySelectorAll('.ltab').forEach((el,i)=>el.classList.toggle('active',['login','reg','pw'][i]===t));
   document.getElementById('fLogin').style.display=t==='login'?'block':'none';
   document.getElementById('fReg').style.display=t==='reg'?'block':'none';
   document.getElementById('fPw').style.display=t==='pw'?'block':'none';
+  // 탭 전환시 회원가입 상태 초기화
+  if(t==='reg'){ closeDropdown(); hideAutoFilled(); hideManualFields(); }
 }
 function showE(id,msg){const e=document.getElementById(id);e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',4500);}
 function showOk(id,msg){const e=document.getElementById(id);e.textContent=msg;e.style.display='block';}
 
 // ══ 회원가입 ══
 function doRegister(){
-  const id=v('rId'),name=v('rName'),dept=v('rDept'),org=v('rOrg'),pos=v('rPos'),pw=v('rPw'),pw2=v('rPw2');
-  if(!id||!name||!dept||!org||!pos)return showE('regErr','모든 항목을 입력해주세요.');
-  if(!/^\d{9,12}$/.test(id))return showE('regErr','학번 형식이 맞지 않습니다 (숫자 9~12자리).');
-  if(pw.length<8)return showE('regErr','비밀번호는 8자 이상이어야 합니다.');
-  if(pw!==pw2)return showE('regErr','비밀번호가 일치하지 않습니다.');
+  const id=v('rId');
+  const name=v('rName');
+  const pw=v('rPw');
+  const pw2=v('rPw2');
+
+  // 자동완성 우선, 없으면 수동 입력값 사용
+  const dept=document.getElementById('rDeptHidden').value.trim()
+           || document.getElementById('rDept')?.value?.trim() || '';
+  const org=document.getElementById('rOrgHidden').value.trim()
+          || document.getElementById('rOrg')?.value?.trim() || '';
+  const pos=document.getElementById('rPosHidden').value.trim()
+          || document.getElementById('rPos')?.value?.trim() || '';
+
+  if(!id)         return showE('regErr','학번을 입력해주세요.');
+  if(!name)       return showE('regErr','이름을 입력해주세요.');
+  if(!/^\d{9,12}$/.test(id)) return showE('regErr','학번 형식이 맞지 않습니다 (숫자 9~12자리).');
+  if(!dept||!org||!pos){
+    if(!_autoSelected){
+      // 이름 입력 후 명단에서 선택하지 않았고 수동 입력도 없음
+      return showE('regErr','이름을 입력한 후 목록에서 선택하거나, 정보를 직접 입력해주세요.');
+    }
+    return showE('regErr','학과·소속·직위 정보를 확인해주세요.');
+  }
+  if(pw.length<8) return showE('regErr','비밀번호는 8자 이상이어야 합니다.');
+  if(pw!==pw2)    return showE('regErr','비밀번호가 일치하지 않습니다.');
+
   const users=getUsers();
-  if(users[id])return showE('regErr','이미 가입된 학번입니다.');
+  if(users[id])   return showE('regErr','이미 가입된 학번입니다.');
+
   const user={id,name,dept,org,position:pos,pw:btoa(unescape(encodeURIComponent(pw))),joinedAt:new Date().toISOString()};
-  users[id]=user;saveUsers(users);
-  if(GAS_OK())gasCall({action:'registerUser',id,name,dept,org,position:pos},()=>{});
+  users[id]=user; saveUsers(users);
+
+  if(GAS_OK()) gasCall({action:'registerUser',id,name,dept,org,position:pos},()=>{});
+
   showOk('regOk','✅ 가입 완료! 로그인 탭에서 로그인하세요.');
-  ['rId','rName','rDept','rPos','rPw','rPw2'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('rOrg').value='';
+  // 초기화
+  ['rId','rPw','rPw2'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('rName').value='';
+  hideAutoFilled(); hideManualFields(); closeDropdown();
+  _autoSelected=null;
 }
 
 // ══ 로그인 ══

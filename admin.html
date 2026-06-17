@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1e293b">
+<title>간부장학생 활동일지 - 관리자</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#f1f5f9;min-height:100vh}
+/* ── 로딩 ── */
+#lo{position:fixed;inset:0;background:rgba(255,255,255,.88);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.spinner{width:34px;height:34px;border:3px solid #e2e8f0;border-top-color:#1e293b;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#lo p{font-size:13px;color:#64748b;font-weight:600}
+/* ── 로그인 ── */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(160deg,#1e293b,#334155);padding:20px}
+.lcard{background:#fff;border-radius:16px;padding:32px 26px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.llogo{text-align:center;margin-bottom:22px}
+.abadge{display:inline-block;background:#fef3c7;color:#92400e;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:8px}
+.llogo h1{font-size:20px;font-weight:800;color:#1e293b}
+.llogo p{font-size:12px;color:#94a3b8;margin-top:3px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
+.fg input,.fg select{width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;font-family:inherit;transition:border-color .15s}
+.fg input:focus,.fg select:focus{border-color:#1e293b}
+.btn-dark{width:100%;padding:13px;background:#1e293b;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-dark:hover{background:#0f172a}
+.lerr{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:8px 12px;font-size:13px;margin-bottom:10px;display:none}
+.lnote{text-align:center;font-size:11px;color:#94a3b8;margin-top:12px}
+/* ── 앱 레이아웃 ── */
+#appScreen{display:none}
+.topbar{background:#1e293b;color:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.topbar .logo{display:flex;align-items:center;gap:9px;min-width:0}
+.topbar h1{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbadge{padding:3px 9px;border-radius:10px;font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0}
+.rbadge.team{background:#f59e0b;color:#1e293b}
+.rbadge.director{background:#8b5cf6;color:#fff}
+.topbar .right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.uname{font-size:12px;opacity:.8;white-space:nowrap}
+.btn-out{background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap}
+/* ── 사이드바 + 메인 ── */
+.layout{display:flex;min-height:calc(100vh - 56px)}
+.sidebar{width:205px;background:#fff;border-right:1px solid #e2e8f0;padding:16px 0;flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.slabel{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;margin:0 0 5px;padding:0 14px 0 18px}
+.sitem{display:flex;align-items:center;gap:7px;padding:9px 14px 9px 18px;cursor:pointer;font-size:13px;color:#475569;transition:all .15s;font-weight:500;margin-bottom:1px}
+.sitem:hover{background:#f1f5f9}
+.sitem.active{background:#1e293b;color:#fff}
+.sitem .ico{font-size:14px;flex-shrink:0}
+.cbadge{margin-left:auto;background:#ef4444;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700}
+.ssec{padding:0 0 14px}
+.main{flex:1;padding:20px;overflow-x:hidden;min-width:0}
+/* ── 페이지 ── */
+.page{display:none}
+.page.active{display:block}
+.ptitle{font-size:18px;font-weight:800;color:#1e293b;margin-bottom:3px}
+.psub{font-size:13px;color:#64748b;margin-bottom:16px}
+/* ── 카드 ── */
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.cheader{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:7px}
+.ctitle{font-size:14px;font-weight:700;color:#1e293b}
+/* ── 통계 그리드 ── */
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.sc{background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:4px solid}
+.sc.blue{border-color:#1d4ed8}.sc.yellow{border-color:#f59e0b}.sc.green{border-color:#22c55e}.sc.gray{border-color:#94a3b8}.sc.purple{border-color:#8b5cf6}
+.snum{font-size:26px;font-weight:800}
+.sc.blue .snum{color:#1d4ed8}.sc.yellow .snum{color:#f59e0b}.sc.green .snum{color:#22c55e}.sc.gray .snum{color:#94a3b8}.sc.purple .snum{color:#8b5cf6}
+.slbl2{font-size:11px;color:#64748b;margin-top:1px;font-weight:600}
+/* ── 뱃지 ── */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.b-yellow{background:#fef3c7;color:#92400e}.b-green{background:#d1fae5;color:#065f46}
+.b-red{background:#fee2e2;color:#991b1b}.b-gray{background:#f1f5f9;color:#64748b}
+.b-blue{background:#dbeafe;color:#1e40af}.b-purple{background:#ede9fe;color:#6d28d9}
+/* ── 월 선택 ── */
+.month-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.mbtn{padding:5px 13px;border-radius:18px;border:1.5px solid #e2e8f0;background:#fff;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s;font-family:inherit}
+.mbtn:hover{border-color:#1e293b;color:#1e293b}
+.mbtn.active{background:#1e293b;color:#fff;border-color:#1e293b}
+/* ── 필터바 ── */
+.fbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.fbar select,.fbar input{padding:6px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:12px;outline:none;font-family:inherit;background:#fff}
+/* ── 버튼 ── */
+.btn-sm{padding:6px 12px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.btn-dark-sm{background:#1e293b;color:#fff}
+.btn-success{background:#22c55e;color:#fff}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-info{background:#3b82f6;color:#fff}
+.btn-warn{background:#f59e0b;color:#1e293b}
+.btn-purple{background:#8b5cf6;color:#fff}
+.btn-outline{background:#fff;color:#374151;border:1.5px solid #e2e8f0!important}
+.btn-sm:hover{opacity:.85}
+.btn-sm:disabled{opacity:.4;cursor:not-allowed}
+/* ── 테이블 ── */
+.twrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:460px}
+th{background:#f8fafc;font-size:11px;font-weight:700;color:#64748b;padding:8px 11px;text-align:left;border-bottom:2px solid #e2e8f0;white-space:nowrap}
+td{padding:9px 11px;font-size:12px;color:#374151;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:hover td{background:#f8fafc}
+.tempty{text-align:center;color:#94a3b8;padding:32px;font-size:13px}
+/* ── 단체 탭 ── */
+.org-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.otab{padding:6px 15px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s;font-family:inherit}
+.otab:hover{border-color:#1e293b;color:#1e293b}
+.otab.active{background:#1e293b;color:#fff;border-color:#1e293b}
+/* ── 제출현황 체크 아이콘 ── */
+.chk-green{color:#22c55e;font-size:14px;font-weight:700}
+.chk-yellow{color:#f59e0b;font-size:14px;font-weight:700}
+.chk-empty{color:#d1d5db;font-size:14px}
+/* ── GAS 상태 바 ── */
+.gas-bar{display:flex;align-items:center;gap:7px;font-size:12px;padding:7px 11px;border-radius:7px;margin-bottom:14px}
+.gas-bar.ok{background:#d1fae5;color:#065f46}.gas-bar.local{background:#fef3c7;color:#92400e}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot.ok{background:#22c55e}.dot.local{background:#f59e0b}
+/* ── 단체별 현황 카드 ── */
+.org-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.org-card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-top:3px solid}
+.org-card.자치{border-color:#1d4ed8}.org-card.대의원{border-color:#8b5cf6}.org-card.과대{border-color:#22c55e}
+/* ── 처장/팀장 승인 박스 ── */
+.approve-section{margin-top:10px}
+.approve-org-box{border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.approve-org-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;gap:6px}
+.approve-org-title{font-size:14px;font-weight:700;color:#1e293b}
+.approve-org-body{padding:12px 14px}
+/* 서명란 */
+.sign-area{display:flex;gap:10px;justify-content:flex-end;margin-bottom:14px;flex-wrap:wrap}
+.sign-box{border:1.5px solid #374151;border-radius:6px;width:110px;text-align:center;padding:8px 4px}
+.sign-box-title{font-size:11px;font-weight:700;color:#374151;border-bottom:1px solid #e2e8f0;padding-bottom:5px;margin-bottom:20px}
+.sign-box-name{font-size:12px;color:#374151;min-height:22px;font-weight:600}
+/* ── 명단 아이템 ── */
+.member-item{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:5px;background:#fff}
+.member-name{font-size:13px;font-weight:700;color:#1e293b}
+.member-sub{font-size:11px;color:#64748b;margin-top:1px}
+/* ── 모달 ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s;padding:16px}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:660px;max-height:90vh;overflow-y:auto;transform:scale(.96);transition:transform .18s}
+.modal-bg.open .modal{transform:scale(1)}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.mtitle{font-size:16px;font-weight:700}
+.mactions{display:flex;gap:6px;align-items:center}
+.btn-x{background:#f1f5f9;border:none;width:29px;height:29px;border-radius:50%;cursor:pointer;font-size:15px}
+.irow{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f1f5f9}
+.irow:last-child{border-bottom:none}
+.ik{font-size:12px;color:#64748b;flex-shrink:0;margin-right:10px}
+.iv{font-size:13px;font-weight:600;color:#1e293b;text-align:right}
+.wtitle{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#1d4ed8;margin:10px 0 6px;padding:6px 10px;background:#eff6ff;border-radius:6px}
+.wrange{font-size:10px;color:#6b7280;font-weight:400}
+/* ── 인쇄 (화면 표시용) ── */
+#printFrame{display:none}
+
+/* ── 인쇄 전용 공통 틀 ── */
+@media print{
+  /* 화면 UI 전부 숨김 */
+  body > *{display:none!important}
+  /* 인쇄 프레임만 표시 */
+  #printFrame{
+    display:block!important;
+    font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:#fff;color:#000;
+    padding:0;margin:0;
+  }
+  /* 보고서 공통 */
+  .pf-wrap{padding:15mm 20mm;min-height:297mm}
+  .pf-header{text-align:center;margin-bottom:12mm;border-bottom:2px solid #000;padding-bottom:6mm}
+  .pf-header h1{font-size:18pt;font-weight:bold;margin-bottom:3mm}
+  .pf-header h2{font-size:13pt;font-weight:bold;color:#333}
+  /* 결재란 */
+  .pf-sign{display:flex;justify-content:flex-end;gap:0;margin-bottom:8mm;border:1px solid #000;width:fit-content;margin-left:auto}
+  .pf-sign-cell{width:32mm;border-left:1px solid #000;text-align:center;padding:0}
+  .pf-sign-cell:first-child{border-left:none}
+  .pf-sign-label{font-size:9pt;font-weight:bold;background:#f0f0f0;padding:2mm;border-bottom:1px solid #000;display:block}
+  .pf-sign-name{font-size:10pt;font-weight:bold;padding:4mm 2mm;min-height:15mm;display:flex;align-items:center;justify-content:center}
+  /* 메타 정보 */
+  .pf-meta{width:100%;border-collapse:collapse;margin-bottom:6mm;font-size:10pt}
+  .pf-meta td{border:1px solid #999;padding:2mm 3mm}
+  .pf-meta td:nth-child(odd){background:#f8f8f8;font-weight:bold;width:20%}
+  /* 주차별 활동 */
+  .pf-week{margin-bottom:4mm}
+  .pf-week-title{background:#1d4ed8;color:#fff;font-size:10pt;font-weight:bold;padding:2mm 3mm;margin-bottom:0}
+  .pf-week-body{border:1px solid #ccc;border-top:none;padding:2mm 3mm;min-height:10mm;font-size:10pt;line-height:1.6}
+  /* 목록 테이블 */
+  .pf-table{width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:5mm}
+  .pf-table th{background:#1e293b;color:#fff;padding:2mm 2.5mm;border:1px solid #555;text-align:center;white-space:nowrap}
+  .pf-table td{padding:1.8mm 2.5mm;border:1px solid #ccc;vertical-align:middle}
+  .pf-table tr:nth-child(even) td{background:#f9f9f9}
+  .pf-table td.center{text-align:center}
+  /* 단체별 승인 보고서 */
+  .pf-org-section{margin-bottom:10mm;page-break-inside:avoid}
+  .pf-org-title{font-size:13pt;font-weight:bold;background:#1e293b;color:#fff;padding:3mm 4mm;margin-bottom:4mm}
+  /* 페이지 나누기 */
+  .pf-pagebreak{page-break-after:always}
+  /* 인쇄시 색상 강제 */
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
+/* ── 토스트 ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;transition:opacity .22s;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+/* no-print: 화면에는 보이지만 인쇄 제외 */
+@media print{ .no-print{display:none!important} }
+/* ── 반응형 ── */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .sgrid{grid-template-columns:1fr 1fr}
+  .org-cards{grid-template-columns:1fr}
+  .main{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<div id="lo" style="display:none"><div class="spinner"></div><p id="lmsg">처리 중...</p></div>
+<!-- 인쇄 전용 프레임 -->
+<div id="printFrame"></div>
+
+<!-- ══ 로그인 ══ -->
+<div id="loginScreen">
+  <div class="lcard">
+    <div class="llogo">
+      <div class="abadge">🔐 관리자 전용</div>
+      <h1>간부장학생 활동일지</h1>
+      <p>유한대학교 학생복지팀 · 입학학생처</p>
+    </div>
+    <div id="lerr" class="lerr"></div>
+    <div class="fg"><label>아이디</label><input id="aId" type="text" placeholder="관리자 아이디"></div>
+    <div class="fg"><label>비밀번호</label><input id="aPw" type="password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="fg"><label>역할</label>
+      <select id="aRole"><option value="team">학생복지팀장</option><option value="director">입학학생처장</option></select>
+    </div>
+    <button class="btn-dark" onclick="doLogin()">관리자 로그인</button>
+    <p class="lnote">팀장: team / team1234 &nbsp;·&nbsp; 처장: director / dir1234</p>
+  </div>
+</div>
+
+<!-- ══ 앱 ══ -->
+<div id="appScreen">
+  <div class="topbar">
+    <div class="logo">
+      <h1>📋 간부장학생 활동일지</h1>
+      <span class="rbadge" id="roleBadge"></span>
+    </div>
+    <div class="right">
+      <span class="uname" id="adminName"></span>
+      <button class="btn-out" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <!-- 공통 -->
+      <div class="ssec" style="padding-top:14px">
+        <div class="slabel">메뉴</div>
+        <div class="sitem active"   onclick="gp('pageDash',this)"><span class="ico">📊</span>대시보드</div>
+        <div class="sitem"          onclick="gp('pageList',this)"><span class="ico">📄</span>활동일지 목록<span class="cbadge" id="pendBadge">0</span></div>
+        <div class="sitem"          onclick="gp('pageCheck',this)"><span class="ico">☑️</span>제출 현황</div>
+        <div class="sitem"          onclick="gp('pageApprove',this)"><span class="ico">✅</span>단체별 승인</div>
+      </div>
+      <!-- 팀장 전용 -->
+      <div class="ssec" id="teamSection" style="display:none">
+        <div class="slabel">팀장 전용</div>
+        <div class="sitem" onclick="gp('pageMembers',this)"><span class="ico">👥</span>간부 명단 관리</div>
+        <div class="sitem" onclick="gp('pageSync',this)"><span class="ico">☁️</span>GAS 동기화</div>
+        <div class="sitem" onclick="gp('pageAdmin',this)"><span class="ico">⚙️</span>계정 관리</div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <!-- ══════ 대시보드 ══════ -->
+      <div class="page active" id="pageDash">
+        <div class="ptitle">대시보드</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <div id="gasBarDash" class="gas-bar local" style="margin-bottom:0;flex:1;min-width:180px"><div class="dot local"></div><span id="gasBarTxt">GAS URL 미설정 – 로컬 모드</span></div>
+        </div>
+        <div class="month-bar" id="dashMonthBar"></div>
+        <div class="sgrid" id="dashStats"></div>
+        <div class="org-cards" id="orgCards"></div>
+        <!-- 단체별 승인 현황 (팀장·처장 공통) -->
+        <div class="card">
+          <div class="cheader">
+            <div class="ctitle">📋 단체별 승인 현황</div>
+            <button class="btn-sm btn-dark-sm" onclick="gp('pageApprove',document.querySelector('.sitem:nth-child(4)'))">승인 페이지 →</button>
+          </div>
+          <div id="dashApproveStatus"></div>
+        </div>
+      </div>
+
+      <!-- ══════ 활동일지 목록 ══════ -->
+      <div class="page" id="pageList">
+        <div class="ptitle">활동일지 목록</div>
+        <div class="psub">팀장: 개별 승인·반려 / 처장: 열람 전용</div>
+        <div class="fbar no-print">
+          <select id="fYear"><option value="">전체 년도</option></select>
+          <select id="fMonth"><option value="">전체 월</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+            <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+          </select>
+          <select id="fOrg"><option value="">전체 단체</option><option>학생자치위원회</option><option>대의원회</option><option>과대표</option></select>
+          <select id="fStatus"><option value="">전체 상태</option><option value="submitted">승인대기</option><option value="approved">팀장승인</option><option value="rejected">반려</option></select>
+          <input id="fName" type="text" placeholder="이름·학번" style="width:100px">
+          <button class="btn-sm btn-dark-sm" onclick="renderList()">🔍</button>
+          <button class="btn-sm btn-outline no-print" onclick="printList()">🖨️ 인쇄</button>
+        </div>
+        <div class="card"><div class="twrap">
+          <table><thead><tr>
+            <th>년월</th><th>이름</th><th>학과</th><th>소속</th><th>직위</th><th>제출일</th><th>상태</th><th class="no-print">작업</th>
+          </tr></thead><tbody id="listTb"></tbody></table>
+        </div></div>
+      </div>
+
+      <!-- ══════ 제출 현황 ══════ -->
+      <div class="page" id="pageCheck">
+        <div class="ptitle">제출 현황</div>
+        <div class="month-bar" id="checkMonthBar"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <div class="org-tabs" style="margin-bottom:0">
+            <button class="otab active" onclick="switchCheckOrg('학생자치위원회',this)">학생자치위원회</button>
+            <button class="otab" onclick="switchCheckOrg('대의원회',this)">대의원회</button>
+            <button class="otab" onclick="switchCheckOrg('과대표',this)">과대표</button>
+          </div>
+          <button class="btn-sm btn-outline no-print" onclick="printCheck()">🖨️ 인쇄</button>
+        </div>
+        <div class="card">
+          <div class="cheader">
+            <div class="ctitle" id="checkTitle">제출 현황</div>
+            <div style="font-size:11px;color:#64748b;display:flex;gap:8px">
+              <span>🟢 팀장승인</span><span>🟡 제출대기</span><span>⬜ 미제출</span>
+            </div>
+          </div>
+          <div class="twrap"><table>
+            <thead id="checkThead"></thead>
+            <tbody id="checkTbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ══════ 단체별 승인 (팀장·처장 공통) ══════ -->
+      <div class="page" id="pageApprove">
+        <div class="ptitle">단체별 승인</div>
+        <div class="psub" id="approvePsub"></div>
+        <div class="month-bar" id="approveMonthBar"></div>
+        <!-- 3개 단체 각각 별도 섹션 -->
+        <div id="approveOrg_학생자치위원회" class="approve-org-box"></div>
+        <div id="approveOrg_대의원회"     class="approve-org-box"></div>
+        <div id="approveOrg_과대표"       class="approve-org-box"></div>
+      </div>
+
+      <!-- ══════ 간부 명단 관리 (팀장) ══════ -->
+      <div class="page" id="pageMembers">
+        <div class="ptitle">간부 명단 관리</div>
+        <div class="psub">단체별 간부 명단을 추가·삭제합니다.</div>
+        <div class="org-tabs">
+          <button class="otab active" onclick="switchMOrg('학생자치위원회',this)">학생자치위원회</button>
+          <button class="otab" onclick="switchMOrg('대의원회',this)">대의원회</button>
+          <button class="otab" onclick="switchMOrg('과대표',this)">과대표</button>
+        </div>
+        <div class="card">
+          <div class="cheader">
+            <div class="ctitle" id="mOrgTitle"></div>
+            <button class="btn-sm btn-success no-print" onclick="openAddM()">＋ 간부 추가</button>
+          </div>
+          <div id="memberList"></div>
+        </div>
+      </div>
+
+      <!-- ══════ GAS 동기화 ══════ -->
+      <div class="page" id="pageSync">
+        <div class="ptitle">Google Sheets 연동</div>
+        <div class="card" style="max-width:520px">
+          <div class="ctitle" style="margin-bottom:12px">📡 GAS URL 설정</div>
+          <div class="fg"><label>배포 URL</label><input id="gasUrlIn" type="text" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:12px"></div>
+          <div style="display:flex;gap:7px;margin-bottom:12px">
+            <button class="btn-sm btn-dark-sm" onclick="saveGasUrl()">저장</button>
+            <button class="btn-sm btn-info" onclick="testGas()">연결 테스트</button>
+          </div>
+          <div id="gasTestResult" style="font-size:12px;color:#64748b;margin-bottom:10px"></div>
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin-bottom:12px">
+          <div class="ctitle" style="margin-bottom:9px">☁️ 동기화</div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn-sm btn-info" onclick="pullFromGas()">⬇️ Sheets에서 불러오기</button>
+            <button class="btn-sm btn-success" onclick="pushToGas()">⬆️ 로컬 데이터 업로드</button>
+          </div>
+          <div id="syncLog" style="font-size:11px;color:#64748b;line-height:1.8;white-space:pre-wrap"></div>
+        </div>
+        <div class="card" style="max-width:520px">
+          <div class="ctitle" style="margin-bottom:9px">📋 GAS 코드</div>
+          <button class="btn-sm btn-outline" onclick="copyGasCode()">📋 GAS 코드 복사</button>
+          <div id="gasCodePre" style="margin-top:9px;background:#1e293b;color:#e2e8f0;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;white-space:pre;overflow-x:auto;max-height:220px;overflow-y:auto"></div>
+        </div>
+      </div>
+
+      <!-- ══════ 계정 관리 ══════ -->
+      <div class="page" id="pageAdmin">
+        <div class="ptitle">계정 관리</div>
+        <div class="card" style="max-width:360px">
+          <div class="ctitle" style="margin-bottom:12px">🔑 비밀번호 변경</div>
+          <div class="fg"><label>현재 비밀번호</label><input id="chOld" type="password"></div>
+          <div class="fg"><label>새 비밀번호</label><input id="chNew" type="password"></div>
+          <div class="fg"><label>확인</label><input id="chNew2" type="password"></div>
+          <button class="btn-sm btn-dark-sm" onclick="changeAdminPw()">변경</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- 상세 모달 -->
+<div class="modal-bg" id="detModal" onclick="closeMod(event)">
+  <div class="modal">
+    <div class="mhead no-print">
+      <div class="mtitle" id="detTitle"></div>
+      <div class="mactions">
+        <button class="btn-sm btn-info" onclick="printDet()">🖨️ 인쇄</button>
+        <button class="btn-x" onclick="closeModDirect()">✕</button>
+      </div>
+    </div>
+    <div id="detContent"></div>
+    <div id="detActions" class="no-print" style="margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;display:flex;gap:7px;flex-wrap:wrap"></div>
+  </div>
+</div>
+
+<!-- 간부 추가 모달 -->
+<div class="modal-bg" id="addMModal" onclick="closeAddM(event)">
+  <div class="modal" style="max-width:380px">
+    <div class="mhead"><div class="mtitle">간부 추가</div><button class="btn-x" onclick="closeAddMDir()">✕</button></div>
+    <div class="fg"><label>단체</label><input id="amOrg" readonly style="background:#f9fafb"></div>
+    <div class="fg"><label>직위</label><input id="amPos" type="text" placeholder="예: 위원장, 과대표"></div>
+    <div class="fg"><label>이름</label><input id="amName" type="text"></div>
+    <div class="fg"><label>학과(전공)</label><input id="amDept" type="text"></div>
+    <div class="fg"><label>학번 (선택)</label><input id="amId" type="text" inputmode="numeric"></div>
+    <div style="display:flex;gap:7px">
+      <button class="btn-sm btn-success" onclick="addMConfirm()">추가</button>
+      <button class="btn-sm btn-outline" onclick="closeAddMDir()">취소</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+// 기본 명단
+// ════════════════════════════════════════════════
+const DEF_MEMBERS = {
+  '학생자치위원회':[
+    {name:'윤채원',dept:'식품영양학과',           position:'위원장',      id:''},
+    {name:'최서우',dept:'건강웰니스학과 스포츠재활전공',position:'부위원장',  id:''},
+    {name:'박예진',dept:'보건의료행정학과',        position:'총무부장',    id:''},
+    {name:'김나은',dept:'호텔외식조리학과',        position:'기획부장',    id:''},
+    {name:'이민우',dept:'기계공학과',             position:'활동부장',    id:''},
+    {name:'오제혁',dept:'응급구조학과',           position:'사회체육부장', id:''},
+    {name:'황기범',dept:'보건의료행정학과',        position:'문화복지부장', id:''},
+    {name:'김민석',dept:'방송예술학과 방송연예전공',position:'홍보부장',    id:''},
+  ],
+  '대의원회':[
+    {name:'나우진',dept:'광고미디어전공',   position:'의장',        id:''},
+    {name:'임채윤',dept:'보건의료행정학과', position:'부의장',      id:''},
+    {name:'신보성',dept:'식품영양학과',     position:'총무부장',    id:''},
+    {name:'한가령',dept:'방송미디어학과',   position:'문화복지부장', id:''},
+    {name:'박고은',dept:'시각디자인학과',   position:'기획부장',    id:''},
+  ],
+  '과대표':[
+    {name:'기유민',dept:'작업치료학과',              position:'과대표',id:''},
+    {name:'김명연',dept:'생활디자인학과',             position:'과대표',id:''},
+    {name:'김민서',dept:'컴퓨터공학과',              position:'과대표',id:''},
+    {name:'박주영',dept:'IT정보통신학과',            position:'과대표',id:''},
+    {name:'박준영',dept:'기계공학과 소방설비안전전공', position:'과대표',id:''},
+    {name:'박희진',dept:'멀티디자인학과',             position:'과대표',id:''},
+    {name:'소지언',dept:'반려동물보건학과',            position:'과대표',id:''},
+    {name:'정자은',dept:'경영학과',                  position:'과대표',id:''},
+    {name:'조아현',dept:'항공서비스학과',             position:'과대표',id:''},
+    {name:'최종현',dept:'전기공학과',                position:'과대표',id:''},
+    {name:'하나경',dept:'의료뷰티학과',               position:'과대표',id:''},
+    {name:'한민영',dept:'안전소방학과 산업안전전공',   position:'과대표',id:''},
+    {name:'황연수',dept:'글로벌관광학과',             position:'과대표',id:''},
+    {name:'황윤지',dept:'방송미디어학과',             position:'과대표',id:''},
+    {name:'황정윤',dept:'유한생명바이오학과',          position:'과대표',id:''},
+  ]
+};
+
+// ════════════════════════════════════════════════
+// 스토리지
+// ════════════════════════════════════════════════
+const S={
+  get(k){try{return JSON.parse(localStorage.getItem('yuhan_jang_'+k));}catch{return null;}},
+  set(k,v){try{localStorage.setItem('yuhan_jang_'+k,JSON.stringify(v));}catch{}},
+  del(k){try{localStorage.removeItem('yuhan_jang_'+k);}catch{}}
+};
+let GAS_URL=localStorage.getItem('yuhan_jang_gasUrl')||'';
+
+function getMembers(){const m=S.get('members');if(!m){S.set('members',DEF_MEMBERS);return DEF_MEMBERS;}return m;}
+function saveMembers(m){S.set('members',m);}
+function getAdmins(){return S.get('admins')||{};}
+function saveAdmins(a){S.set('admins',a);}
+function getJournals(){return S.get('journals')||[];}
+function saveJournals(j){S.set('journals',j);}
+// 승인 정보: {year_month_org: {teamApproved,teamBy,teamAt,dirApproved,dirBy,dirAt}}
+function getOrgApprovals(){return S.get('orgApprovals')||{};}
+function saveOrgApprovals(a){S.set('orgApprovals',a);}
+
+function initAdmins(){
+  if(!S.get('admins')) S.set('admins',{
+    team:    {id:'team',    name:'학생복지팀장',role:'team',    pw:btoa('team1234')},
+    director:{id:'director',name:'입학학생처장',role:'director',pw:btoa('dir1234')}
+  });
+}
+initAdmins();
+
+// GAS JSONP
+function gasCall(params,cb){
+  if(!GAS_URL){cb(null,'GAS URL 미설정');return;}
+  const name='cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const sc=document.createElement('script');
+  const timer=setTimeout(()=>{delete window[name];sc.remove();cb(null,'timeout');},12000);
+  window[name]=d=>{clearTimeout(timer);delete window[name];sc.remove();cb(d,null);};
+  sc.src=GAS_URL+'?'+new URLSearchParams({...params,callback:name});
+  sc.onerror=()=>{clearTimeout(timer);delete window[name];cb(null,'network error');};
+  document.body.appendChild(sc);
+}
+
+// ════════════════════════════════════════════════
+// 상태
+// ════════════════════════════════════════════════
+let CA=null;
+const NOW=new Date();
+let DASH_MONTH=NOW.getMonth()+1;
+let CHECK_MONTH=NOW.getMonth()+1;
+let APP_MONTH=NOW.getMonth()+1;
+let CHECK_ORG='학생자치위원회';
+let M_ORG='학생자치위원회';
+
+// ════════════════════════════════════════════════
+// 로그인
+// ════════════════════════════════════════════════
+function doLogin(){
+  const id=document.getElementById('aId').value.trim();
+  const pw=document.getElementById('aPw').value;
+  const role=document.getElementById('aRole').value;
+  const a=getAdmins()[id];
+  if(!a){showLErr('등록되지 않은 계정');return;}
+  if(a.role!==role){showLErr('역할이 일치하지 않습니다');return;}
+  if(a.pw!==btoa(pw)){showLErr('비밀번호 오류');return;}
+  CA=a; S.set('adminSession',{id,role,at:new Date().toISOString()});
+  enterApp();
+}
+function showLErr(m){const e=document.getElementById('lerr');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',3500);}
+function doLogout(){CA=null;S.del('adminSession');document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';}
+
+function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  const rl=CA.role==='team'?'학생복지팀장':'입학학생처장';
+  const rb=document.getElementById('roleBadge');
+  rb.textContent=rl; rb.className='rbadge '+(CA.role==='team'?'team':'director');
+  document.getElementById('adminName').textContent=CA.name;
+  // 팀장 전용 메뉴
+  document.getElementById('teamSection').style.display=CA.role==='team'?'block':'none';
+  document.getElementById('gasUrlIn').value=GAS_URL;
+  updateGasBar();
+  buildMonthBars();
+  renderDash();
+  renderList();
+  renderCheck();
+  renderApprove();
+  renderMembers();
+  renderGasCode();
+  // 승인 페이지 설명
+  document.getElementById('approvePsub').textContent=
+    CA.role==='team'
+      ? '팀장: 학생 개별 승인 후, 단체별 최종 서명합니다.'
+      : '처장: 팀장 서명 완료된 단체에 최종 서명합니다.';
+}
+
+// ════════════════════════════════════════════════
+// 탭 전환
+// ════════════════════════════════════════════════
+function gp(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sitem').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='pageList')    renderList();
+  if(id==='pageCheck')   renderCheck();
+  if(id==='pageApprove') renderApprove();
+  if(id==='pageMembers') renderMembers();
+}
+
+// ════════════════════════════════════════════════
+// 월 선택 바
+// ════════════════════════════════════════════════
+function buildMonthBars(){
+  [['dashMonthBar','DASH'],['checkMonthBar','CHECK'],['approveMonthBar','APP']].forEach(([bid,key])=>{
+    const bar=document.getElementById(bid);
+    if(!bar)return;
+    const cur=key==='DASH'?DASH_MONTH:key==='CHECK'?CHECK_MONTH:APP_MONTH;
+    bar.innerHTML=[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>
+      `<button class="mbtn${m===cur?' active':''}" onclick="setM('${key}',${m},this)">${m}월</button>`
+    ).join('');
+  });
+}
+function setM(key,month,el){
+  const barId=key==='DASH'?'dashMonthBar':key==='CHECK'?'checkMonthBar':'approveMonthBar';
+  document.querySelectorAll('#'+barId+' .mbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(key==='DASH'){DASH_MONTH=month;renderDash();}
+  if(key==='CHECK'){CHECK_MONTH=month;renderCheck();}
+  if(key==='APP'){APP_MONTH=month;renderApprove();}
+}
+
+// ════════════════════════════════════════════════
+// 대시보드
+// ════════════════════════════════════════════════
+function renderDash(){
+  const year=NOW.getFullYear();
+  const js=getJournals().filter(j=>j.status!=='draft');
+  const tm=js.filter(j=>j.month===DASH_MONTH&&j.year===year);
+  document.getElementById('pendBadge').textContent=js.filter(j=>j.status==='submitted').length;
+  document.getElementById('dashStats').innerHTML=`
+    <div class="sc blue"><div class="snum">${tm.length}</div><div class="slbl2">${DASH_MONTH}월 제출</div></div>
+    <div class="sc yellow"><div class="snum">${tm.filter(j=>j.status==='submitted').length}</div><div class="slbl2">팀장 대기</div></div>
+    <div class="sc green"><div class="snum">${tm.filter(j=>j.status==='approved').length}</div><div class="slbl2">팀장 승인</div></div>
+    <div class="sc gray"><div class="snum">${Object.keys(S.get('users')||{}).length}</div><div class="slbl2">등록 학생</div></div>`;
+
+  const orgs=['학생자치위원회','대의원회','과대표'];
+  const members=getMembers();
+  const oa=getOrgApprovals();
+  document.getElementById('orgCards').innerHTML=orgs.map(org=>{
+    const cls=org==='학생자치위원회'?'자치':org==='대의원회'?'대의원':'과대';
+    const mList=members[org]||[];
+    const sub=tm.filter(j=>j.org===org).length;
+    const appr=tm.filter(j=>j.org===org&&j.status==='approved').length;
+    const pct=mList.length>0?Math.round(sub/mList.length*100):0;
+    const key=`${year}_${DASH_MONTH}_${org}`;
+    const orgA=oa[key]||{};
+    return `<div class="org-card ${cls}">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px">${org}</div>
+      <div style="font-size:22px;font-weight:800;color:#1d4ed8">${sub}<span style="font-size:12px;color:#94a3b8"> / ${mList.length}</span></div>
+      <div style="background:#e2e8f0;border-radius:3px;height:5px;margin:7px 0">
+        <div style="background:#1d4ed8;height:5px;border-radius:3px;width:${pct}%"></div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
+        <span class="badge b-yellow">대기 ${sub-appr}</span>
+        <span class="badge b-green">승인 ${appr}</span>
+      </div>
+      <div style="font-size:11px;color:#64748b">
+        팀장: ${orgA.teamApproved?'✅ '+orgA.teamBy:'⏳ 미서명'}<br>
+        처장: ${orgA.dirApproved?'✅ '+orgA.dirBy:'⏳ 미서명'}
+      </div>
+    </div>`;
+  }).join('');
+
+  // 승인 현황 요약
+  document.getElementById('dashApproveStatus').innerHTML=orgs.map(org=>{
+    const key=`${year}_${DASH_MONTH}_${org}`;
+    const orgA=oa[key]||{};
+    const mList=members[org]||[];
+    const allTeamAppr=mList.length>0&&mList.every(m=>tm.some(j=>j.org===org&&j.status==='approved'&&(j.studentName===m.name||(m.id&&j.studentId===m.id))));
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9">
+      <span style="font-size:13px;font-weight:600">${org}</span>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span class="badge ${allTeamAppr?'b-green':'b-yellow'}">팀장 ${allTeamAppr?'완료':'진행중'}</span>
+        <span class="badge ${orgA.teamApproved?'b-blue':'b-gray'}">팀장서명 ${orgA.teamApproved?orgA.teamBy:'미서명'}</span>
+        <span class="badge ${orgA.dirApproved?'b-purple':'b-gray'}">처장서명 ${orgA.dirApproved?orgA.dirBy:'미서명'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// 활동일지 목록
+// ════════════════════════════════════════════════
+function renderList(){
+  const ysel=document.getElementById('fYear');
+  const years=[...new Set(getJournals().map(j=>j.year))].sort((a,b)=>b-a);
+  if(ysel.options.length<=1) years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+'년';ysel.appendChild(o);});
+  let js=getJournals().filter(j=>j.status!=='draft');
+  const fY=document.getElementById('fYear').value,fM=document.getElementById('fMonth').value,
+        fO=document.getElementById('fOrg').value,fS=document.getElementById('fStatus').value,
+        fN=document.getElementById('fName').value.trim();
+  if(fY)js=js.filter(j=>j.year==fY);if(fM)js=js.filter(j=>j.month==fM);
+  if(fO)js=js.filter(j=>j.org===fO);if(fS)js=js.filter(j=>j.status===fS);
+  if(fN)js=js.filter(j=>j.studentName.includes(fN)||j.studentId.includes(fN));
+  js.sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt));
+  const isTeam=CA.role==='team';
+  const tb=document.getElementById('listTb');
+  if(!js.length){tb.innerHTML='<tr><td colspan="8" class="tempty">해당 조건 없음</td></tr>';return;}
+  tb.innerHTML=js.map(j=>`<tr>
+    <td>${j.year}.${String(j.month).padStart(2,'0')}</td>
+    <td><strong>${j.studentName}</strong></td>
+    <td style="font-size:11px">${j.dept}</td>
+    <td>${j.org}</td><td>${j.position}</td>
+    <td style="font-size:11px">${fdt(j.submittedAt)}</td>
+    <td>${sbadge(j.status)}</td>
+    <td class="no-print"><div style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn-sm btn-outline" onclick="viewDet('${j.id}')">열람</button>
+      ${isTeam&&j.status==='submitted'?`<button class="btn-sm btn-success" onclick="approveJ('${j.id}')">승인</button><button class="btn-sm btn-danger" onclick="rejectJ('${j.id}')">반려</button>`:''}
+      ${isTeam&&j.status==='approved'?`<button class="btn-sm btn-warn" onclick="cancelApproveJ('${j.id}')">취소</button>`:''}
+      ${!isTeam?'<span style="font-size:11px;color:#94a3b8">열람만</span>':''}
+    </div></td>
+  </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// 개별 승인/반려/취소 (팀장)
+// ════════════════════════════════════════════════
+function approveJ(jid){
+  if(CA.role!=='team'){showToast('팀장만 승인 가능');return;}
+  if(!confirm('승인하시겠습니까?'))return;
+  const js=getJournals(),j=js.find(x=>x.id===jid);if(!j)return;
+  j.status='approved';j.approvedAt=new Date().toISOString();j.approvedBy=CA.name;
+  saveJournals(js);if(GAS_URL)gasCall({action:'updateStatus',id:jid,status:'approved',approvedBy:CA.name},()=>{});
+  showToast('✅ 승인 완료');renderDash();renderList();renderApprove();renderCheck();closeModDirect();
+}
+function rejectJ(jid){
+  if(CA.role!=='team'){showToast('팀장만 반려 가능');return;}
+  const c=prompt('반려 사유 (선택):');if(c===null)return;
+  const js=getJournals(),j=js.find(x=>x.id===jid);if(!j)return;
+  j.status='rejected';j.comment=c||'';j.rejectedAt=new Date().toISOString();j.rejectedBy=CA.name;
+  saveJournals(js);if(GAS_URL)gasCall({action:'updateStatus',id:jid,status:'rejected',comment:c||''},()=>{});
+  showToast('반려 완료');renderDash();renderList();renderApprove();renderCheck();closeModDirect();
+}
+function cancelApproveJ(jid){
+  if(CA.role!=='team'){showToast('팀장만 취소 가능');return;}
+  if(!confirm('승인을 취소하겠습니까?'))return;
+  const js=getJournals(),j=js.find(x=>x.id===jid);if(!j)return;
+  j.status='submitted';j.approvedAt=null;j.approvedBy='';
+  saveJournals(js);if(GAS_URL)gasCall({action:'updateStatus',id:jid,status:'submitted'},()=>{});
+  showToast('승인 취소');renderDash();renderList();renderApprove();renderCheck();closeModDirect();
+}
+
+// ════════════════════════════════════════════════
+// 상세 열람
+// ════════════════════════════════════════════════
+function viewDet(jid){
+  const j=getJournals().find(x=>x.id===jid);if(!j)return;
+  document.getElementById('detTitle').textContent=j.year+'년 '+j.month+'월 활동일지';
+  const dc=document.getElementById('detContent');
+  dc.dataset.jid=j.id;
+  dc.innerHTML=`
+    <div style="margin-bottom:9px;display:flex;gap:7px;align-items:center">${sbadge(j.status)}
+      ${j.approvedBy?`<span style="font-size:11px;color:#64748b">팀장승인: ${j.approvedBy} · ${fdt(j.approvedAt)}</span>`:''}
+    </div>
+    <div class="irow"><span class="ik">학번</span><span class="iv">${j.studentId||'-'}</span></div>
+    <div class="irow"><span class="ik">이름</span><span class="iv">${j.studentName}</span></div>
+    <div class="irow"><span class="ik">학과</span><span class="iv">${j.dept}</span></div>
+    <div class="irow"><span class="ik">소속</span><span class="iv">${j.org} · ${j.position}</span></div>
+    <div class="irow"><span class="ik">제출일</span><span class="iv">${fdt(j.submittedAt)}</span></div>
+    <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0">
+    ${(j.weeks||[]).map(w=>`
+      <div class="wtitle">📅 ${w.label} <span class="wrange">${w.range}</span></div>
+      ${(w.activities||[]).length?w.activities.map(a=>`<div style="padding:4px 0 4px 11px;font-size:13px">● ${a}</div>`).join(''):'<div style="font-size:12px;color:#94a3b8;padding-left:11px">없음</div>'}
+      <div style="height:6px"></div>`).join('')}
+    ${j.comment?`<div style="font-size:13px;color:#dc2626;background:#fef2f2;border-radius:6px;padding:8px 11px">💬 ${j.comment}</div>`:''}`;
+  const acts=document.getElementById('detActions');
+  const isTeam=CA.role==='team';
+  acts.innerHTML=`<button class="btn-sm btn-info" onclick="printDet()">🖨️ 인쇄</button>`
+    +(isTeam&&j.status==='submitted'?`<button class="btn-sm btn-success" onclick="approveJ('${j.id}')">✅ 승인</button><button class="btn-sm btn-danger" onclick="rejectJ('${j.id}')">❌ 반려</button>`:'')
+    +(isTeam&&j.status==='approved'?`<button class="btn-sm btn-warn" onclick="cancelApproveJ('${j.id}')">↩ 취소</button>`:'');
+  document.getElementById('detModal').classList.add('open');
+}
+function closeMod(e){if(e.target===document.getElementById('detModal'))closeModDirect();}
+function closeModDirect(){document.getElementById('detModal').classList.remove('open');}
+
+// ════════════════════════════════════════════════
+// 인쇄 함수 모음
+// ════════════════════════════════════════════════
+function doPrint(html){
+  const pf=document.getElementById('printFrame');
+  pf.innerHTML=html;
+  window.print();
+  setTimeout(()=>{pf.innerHTML='';},1000);
+}
+
+// ① 활동일지 상세 인쇄
+function printDet(){
+  const jid=document.getElementById('detContent').dataset.jid;
+  const j=getJournals().find(x=>x.id===jid);
+  if(!j)return;
+  const oa=getOrgApprovals();
+  const key=`${j.year}_${j.month}_${j.org}`;
+  const orgA=oa[key]||{};
+  doPrint(`<div class="pf-wrap">
+    <div class="pf-header">
+      <h1>[대상: ${j.org}] 간부장학생 활동일지</h1>
+      <h2>${j.year}년 ${j.month}월</h2>
+    </div>
+    <div class="pf-sign">
+      <div class="pf-sign-cell"><span class="pf-sign-label">학생복지팀장</span><span class="pf-sign-name">${orgA.teamApproved?orgA.teamBy:''}</span></div>
+      <div class="pf-sign-cell"><span class="pf-sign-label">입학학생처장</span><span class="pf-sign-name">${orgA.dirApproved?orgA.dirBy:''}</span></div>
+    </div>
+    <table class="pf-meta">
+      <tr><td>성 명</td><td>${j.studentName}</td><td>학 번</td><td>${j.studentId||'-'}</td></tr>
+      <tr><td>학과(전공)</td><td>${j.dept}</td><td>소 속</td><td>${j.org} · ${j.position}</td></tr>
+      <tr><td>제출일</td><td colspan="3">${fdt(j.submittedAt)}</td></tr>
+    </table>
+    ${(j.weeks||[]).map(w=>`
+      <div class="pf-week">
+        <div class="pf-week-title">📅 ${w.label} (${w.range})</div>
+        <div class="pf-week-body">${(w.activities||[]).length
+          ? w.activities.map(a=>`● ${a}`).join('<br>')
+          : '활동 내용 없음'}</div>
+      </div>`).join('')}
+    ${j.comment?`<div style="margin-top:4mm;padding:2mm 3mm;border:1px solid #fecaca;color:#dc2626;font-size:10pt">💬 메모: ${j.comment}</div>`:''}
+    <div style="margin-top:8mm;font-size:9pt;color:#555;text-align:right">
+      ${j.year}년 ${j.month}월 ${j.org} ${j.position}: ${j.studentName} (서명)
+    </div>
+  </div>`);
+}
+
+// ② 활동일지 목록 인쇄
+function printList(){
+  let js=getJournals().filter(j=>j.status!=='draft');
+  const fY=document.getElementById('fYear').value;
+  const fM=document.getElementById('fMonth').value;
+  const fO=document.getElementById('fOrg').value;
+  const fS=document.getElementById('fStatus').value;
+  const fN=document.getElementById('fName').value.trim();
+  if(fY)js=js.filter(j=>j.year==fY);
+  if(fM)js=js.filter(j=>j.month==fM);
+  if(fO)js=js.filter(j=>j.org===fO);
+  if(fS)js=js.filter(j=>j.status===fS);
+  if(fN)js=js.filter(j=>j.studentName.includes(fN)||j.studentId.includes(fN));
+  js.sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt));
+  const filterDesc=[fY?fY+'년':'',fM?fM+'월':'',fO||'전체 단체',fN?'['+fN+']':''].filter(Boolean).join(' ');
+  doPrint(`<div class="pf-wrap">
+    <div class="pf-header">
+      <h1>간부장학생 활동일지 목록</h1>
+      <h2>유한대학교 학생복지팀 · ${filterDesc}</h2>
+    </div>
+    <table class="pf-table">
+      <thead><tr>
+        <th>#</th><th>년월</th><th>이름</th><th>학과</th><th>소속</th><th>직위</th><th>제출일</th><th>상태</th>
+      </tr></thead>
+      <tbody>${js.map((j,i)=>`<tr>
+        <td class="center">${i+1}</td>
+        <td class="center">${j.year}.${String(j.month).padStart(2,'0')}</td>
+        <td><strong>${j.studentName}</strong></td>
+        <td>${j.dept}</td><td>${j.org}</td><td>${j.position}</td>
+        <td class="center">${fdt(j.submittedAt)}</td>
+        <td class="center">${j.status==='approved'?'✅팀장승인':j.status==='submitted'?'⏳대기':j.status==='rejected'?'❌반려':'-'}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+    <div style="text-align:right;font-size:9pt;color:#555;margin-top:3mm">총 ${js.length}건 · 출력일: ${new Date().toLocaleDateString('ko-KR')}</div>
+  </div>`);
+}
+
+// ③ 제출현황 인쇄
+function printCheck(){
+  const year=NOW.getFullYear();
+  const members=getMembers()[CHECK_ORG]||[];
+  const js=getJournals().filter(j=>j.org===CHECK_ORG&&j.year===year&&j.month===CHECK_MONTH&&j.status!=='draft');
+  const oa=getOrgApprovals();
+  const key=`${year}_${CHECK_MONTH}_${CHECK_ORG}`;
+  const orgA=oa[key]||{};
+  doPrint(`<div class="pf-wrap">
+    <div class="pf-header">
+      <h1>[${CHECK_ORG}] 간부장학생 활동일지</h1>
+      <h2>${year}년 ${CHECK_MONTH}월 제출 현황</h2>
+    </div>
+    <div class="pf-sign">
+      <div class="pf-sign-cell"><span class="pf-sign-label">학생복지팀장</span><span class="pf-sign-name">${orgA.teamApproved?orgA.teamBy:''}</span></div>
+      <div class="pf-sign-cell"><span class="pf-sign-label">입학학생처장</span><span class="pf-sign-name">${orgA.dirApproved?orgA.dirBy:''}</span></div>
+    </div>
+    <table class="pf-table">
+      <thead><tr><th>#</th><th>이름</th><th>학과</th><th>직위</th><th>제출일</th><th>팀장 승인</th></tr></thead>
+      <tbody>${members.map((m,i)=>{
+        const jj=js.find(j=>j.studentName===m.name||(m.id&&j.studentId===m.id));
+        return `<tr>
+          <td class="center">${i+1}</td>
+          <td><strong>${m.name}</strong></td>
+          <td>${m.dept}</td>
+          <td class="center">${m.position}</td>
+          <td class="center">${jj?fdt(jj.submittedAt):'미제출'}</td>
+          <td class="center">${jj&&jj.status==='approved'?'✅ '+fdt(jj.approvedAt):jj?'⏳ 대기':'없음'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="text-align:right;font-size:9pt;color:#555;margin-top:3mm">총 ${members.length}명 · 출력일: ${new Date().toLocaleDateString('ko-KR')}</div>
+  </div>`);
+}
+
+// ④ 단체별 승인 인쇄 (보고서 형식)
+function printOrg(org,year,month){
+  const members=getMembers()[org]||[];
+  const js=getJournals().filter(j=>j.org===org&&j.year===year&&j.month===month&&j.status!=='draft');
+  const oa=getOrgApprovals();
+  const key=`${year}_${month}_${org}`;
+  const orgA=oa[key]||{};
+  doPrint(`<div class="pf-wrap">
+    <div class="pf-header">
+      <h1>[${org}] 간부장학생 활동일지</h1>
+      <h2>${year}년 ${month}월</h2>
+    </div>
+    <div class="pf-sign">
+      <div class="pf-sign-cell"><span class="pf-sign-label">학생복지팀장</span><span class="pf-sign-name">${orgA.teamApproved?orgA.teamBy:''}</span></div>
+      <div class="pf-sign-cell"><span class="pf-sign-label">입학학생처장</span><span class="pf-sign-name">${orgA.dirApproved?orgA.dirBy:''}</span></div>
+    </div>
+    <table class="pf-table" style="margin-bottom:8mm">
+      <thead><tr><th>#</th><th>이름</th><th>학과</th><th>직위</th><th>제출일</th><th>팀장 승인</th></tr></thead>
+      <tbody>${members.map((m,i)=>{
+        const jj=js.find(j=>j.studentName===m.name||(m.id&&j.studentId===m.id));
+        return `<tr>
+          <td class="center">${i+1}</td>
+          <td><strong>${m.name}</strong></td>
+          <td>${m.dept}</td>
+          <td class="center">${m.position}</td>
+          <td class="center">${jj?fdt(jj.submittedAt):'미제출'}</td>
+          <td class="center">${jj&&jj.status==='approved'?'✅ '+fdt(jj.approvedAt):jj?'⏳ 대기':'없음'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="font-size:10pt;text-align:right;margin-bottom:6mm">
+      ${year}년 ${month}월 31일<br><br>
+      ${org} ${org==='과대표'?'대표':'위원장/의장'}: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (서명)
+    </div>
+    <div style="text-align:right;font-size:9pt;color:#555">출력일: ${new Date().toLocaleDateString('ko-KR')}</div>
+  </div>`);
+}
+
+// ════════════════════════════════════════════════
+// 제출 현황
+// ════════════════════════════════════════════════
+function switchCheckOrg(org,el){
+  CHECK_ORG=org;
+  document.querySelectorAll('#pageCheck .otab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderCheck();
+}
+function renderCheck(){
+  const year=NOW.getFullYear();
+  const members=getMembers()[CHECK_ORG]||[];
+  const js=getJournals().filter(j=>j.org===CHECK_ORG&&j.year===year&&j.month===CHECK_MONTH&&j.status!=='draft');
+  document.getElementById('checkTitle').textContent=`${CHECK_ORG} 제출 현황 (${year}년 ${CHECK_MONTH}월)`;
+  document.getElementById('checkThead').innerHTML=`<tr><th>#</th><th>이름</th><th>학과</th><th>직위</th><th>제출</th><th>상태</th><th class="no-print">작업</th></tr>`;
+  if(!members.length){document.getElementById('checkTbody').innerHTML='<tr><td colspan="7" class="tempty">명단 없음</td></tr>';return;}
+  document.getElementById('checkTbody').innerHTML=members.map((m,i)=>{
+    const jj=js.find(j=>j.studentName===m.name||(m.id&&j.studentId===m.id));
+    const icon=jj?(jj.status==='approved'?'<span class="chk-green">🟢</span>':'<span class="chk-yellow">🟡</span>'):'<span class="chk-empty">⬜</span>';
+    const st=jj?sbadge(jj.status):'<span style="font-size:11px;color:#94a3b8">미제출</span>';
+    const isTeam=CA.role==='team';
+    const act=jj?[
+      `<button class="btn-sm btn-outline" style="font-size:11px" onclick="viewDet('${jj.id}')">열람</button>`,
+      isTeam&&jj.status==='submitted'?`<button class="btn-sm btn-success" style="font-size:11px" onclick="approveJ('${jj.id}')">승인</button><button class="btn-sm btn-danger" style="font-size:11px" onclick="rejectJ('${jj.id}')">반려</button>`:'',
+      isTeam&&jj.status==='approved'?`<button class="btn-sm btn-warn" style="font-size:11px" onclick="cancelApproveJ('${jj.id}')">취소</button>`:'',
+    ].join(''):'';
+    return `<tr><td>${i+1}</td><td><strong>${m.name}</strong></td><td style="font-size:11px">${m.dept}</td><td>${m.position}</td><td style="text-align:center">${icon}</td><td>${st}</td><td class="no-print">${act}</td></tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// 단체별 승인 페이지 (팀장·처장 공통)
+// ════════════════════════════════════════════════
+function renderApprove(){
+  const year=NOW.getFullYear();
+  const month=APP_MONTH;
+  const orgs=['학생자치위원회','대의원회','과대표'];
+  const members=getMembers();
+  const js=getJournals().filter(j=>j.year===year&&j.month===month&&j.status!=='draft');
+  const oa=getOrgApprovals();
+  const isTeam=CA.role==='team';
+
+  orgs.forEach(org=>{
+    const mList=members[org]||[];
+    const orgJs=js.filter(j=>j.org===org);
+    const key=`${year}_${month}_${org}`;
+    const orgA=oa[key]||{};
+
+    // 모든 구성원이 팀장 승인됐는지
+    const allMemberApproved=mList.length>0&&mList.every(m=>orgJs.some(j=>j.status==='approved'&&(j.studentName===m.name||(m.id&&j.studentId===m.id))));
+
+    // 팀장 서명 가능 조건: 팀장이고 모든 개별승인 완료, 아직 팀장 미서명
+    const canTeamSign=isTeam&&allMemberApproved&&!orgA.teamApproved;
+    // 처장 서명 가능 조건: 처장이고 팀장 서명 완료, 아직 처장 미서명
+    const canDirSign=!isTeam&&orgA.teamApproved&&!orgA.dirApproved;
+
+    const el=document.getElementById('approveOrg_'+org);
+    el.innerHTML=`
+      <div class="approve-org-header">
+        <div class="approve-org-title">[${org}] ${year}년 ${month}월</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" class="no-print">
+          <span class="badge ${allMemberApproved?'b-green':'b-yellow'}">개별승인 ${allMemberApproved?'완료':'진행중'}</span>
+          <span class="badge ${orgA.teamApproved?'b-blue':'b-gray'}">팀장서명 ${orgA.teamApproved?orgA.teamBy:'대기'}</span>
+          <span class="badge ${orgA.dirApproved?'b-purple':'b-gray'}">처장서명 ${orgA.dirApproved?orgA.dirBy:'대기'}</span>
+        </div>
+      </div>
+      <div class="approve-org-body">
+        <!-- 서명란 -->
+        <div class="sign-area">
+          <div class="sign-box">
+            <div class="sign-box-title">학생복지팀장</div>
+            <div class="sign-box-name">${orgA.teamApproved?orgA.teamBy:''}</div>
+          </div>
+          <div class="sign-box">
+            <div class="sign-box-title">입학학생처장</div>
+            <div class="sign-box-name">${orgA.dirApproved?orgA.dirBy:''}</div>
+          </div>
+        </div>
+        <!-- 명단 테이블 -->
+        <div class="twrap"><table>
+          <thead><tr><th>#</th><th>이름</th><th>학과</th><th>직위</th><th>제출일</th><th>팀장승인</th></tr></thead>
+          <tbody>${mList.map((m,i)=>{
+            const jj=orgJs.find(j=>j.studentName===m.name||(m.id&&j.studentId===m.id));
+            return `<tr>
+              <td>${i+1}</td><td><strong>${m.name}</strong></td>
+              <td style="font-size:11px">${m.dept}</td><td>${m.position}</td>
+              <td style="font-size:11px">${jj?fdt(jj.submittedAt):'<span style="color:#94a3b8">미제출</span>'}</td>
+              <td>${jj&&jj.status==='approved'?`<span class="badge b-green">✅ ${fdt(jj.approvedAt)}</span>`:jj?sbadge(jj.status):'<span style="color:#94a3b8;font-size:11px">없음</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table></div>
+        <!-- 서명 버튼 -->
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center" class="no-print">
+          ${canTeamSign
+            ? `<button class="btn-sm btn-info" onclick="signTeam('${key}')">✍️ 팀장 서명 (${CA.name})</button>`
+            : isTeam&&orgA.teamApproved
+              ? `<span style="font-size:12px;color:#3b82f6">✅ 팀장 서명됨: ${orgA.teamBy} (${fdt(orgA.teamAt)})</span>
+                 <button class="btn-sm btn-outline" onclick="cancelSign('${key}','team')">서명 취소</button>`
+              : isTeam&&!allMemberApproved
+                ? `<span style="font-size:12px;color:#94a3b8">⏳ 모든 구성원 개별 승인 후 서명 가능</span>`
+                : ''
+          }
+          ${canDirSign
+            ? `<button class="btn-sm btn-purple" onclick="signDir('${key}')">✍️ 처장 최종서명 (${CA.name})</button>`
+            : !isTeam&&orgA.dirApproved
+              ? `<span style="font-size:12px;color:#8b5cf6">✅ 처장 서명됨: ${orgA.dirBy} (${fdt(orgA.dirAt)})</span>
+                 <button class="btn-sm btn-outline" onclick="cancelSign('${key}','dir')">서명 취소</button>`
+              : !isTeam&&!orgA.teamApproved
+                ? `<span style="font-size:12px;color:#94a3b8">⏳ 팀장 서명 완료 후 처장 서명 가능</span>`
+                : ''
+          }
+          <button class="btn-sm btn-outline" onclick="printOrg('${org}',${year},${month})">🖨️ 인쇄</button>
+        </div>
+      </div>`;
+  });
+}
+
+// ── 팀장 서명 ──
+function signTeam(key){
+  if(!confirm(`[${CA.name}] 이름으로 팀장 서명하시겠습니까?`))return;
+  const oa=getOrgApprovals();
+  if(!oa[key])oa[key]={};
+  oa[key].teamApproved=true; oa[key].teamBy=CA.name; oa[key].teamAt=new Date().toISOString();
+  saveOrgApprovals(oa);
+  if(GAS_URL)gasCall({action:'orgSign',key,role:'team',by:CA.name},()=>{});
+  showToast('✅ 팀장 서명 완료');renderApprove();renderDash();
+}
+// ── 처장 서명 ──
+function signDir(key){
+  if(!confirm(`[${CA.name}] 이름으로 처장 최종서명하시겠습니까?`))return;
+  const oa=getOrgApprovals();
+  if(!oa[key])oa[key]={};
+  oa[key].dirApproved=true; oa[key].dirBy=CA.name; oa[key].dirAt=new Date().toISOString();
+  saveOrgApprovals(oa);
+  if(GAS_URL)gasCall({action:'orgSign',key,role:'director',by:CA.name},()=>{});
+  showToast('✅ 처장 최종서명 완료');renderApprove();renderDash();
+}
+// ── 서명 취소 ──
+function cancelSign(key,role){
+  if(!confirm('서명을 취소하시겠습니까?'))return;
+  const oa=getOrgApprovals();
+  if(!oa[key])return;
+  if(role==='team'){oa[key].teamApproved=false;oa[key].teamBy='';oa[key].teamAt='';}
+  if(role==='dir'){oa[key].dirApproved=false;oa[key].dirBy='';oa[key].dirAt='';}
+  saveOrgApprovals(oa);
+  showToast('서명이 취소되었습니다');renderApprove();renderDash();
+}
+// ════════════════════════════════════════════════
+// 간부 명단 관리
+// ════════════════════════════════════════════════
+function switchMOrg(org,el){
+  M_ORG=org;
+  document.querySelectorAll('#pageMembers .otab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderMembers();
+}
+function renderMembers(){
+  const list=(getMembers()[M_ORG]||[]);
+  document.getElementById('mOrgTitle').textContent=M_ORG+' 명단 ('+list.length+'명)';
+  document.getElementById('memberList').innerHTML=list.length
+    ? list.map((m,i)=>`<div class="member-item">
+        <div><div class="member-name">${m.name} <span style="font-size:11px;font-weight:400;color:#64748b">${m.position}</span></div>
+        <div style="font-size:11px;color:#64748b">${m.dept}${m.id?' · '+m.id:''}</div></div>
+        <button class="btn-sm btn-danger" style="font-size:11px" onclick="deleteM(${i})">삭제</button>
+      </div>`).join('')
+    : '<div style="text-align:center;color:#94a3b8;padding:28px;font-size:13px">명단 없음</div>';
+}
+function openAddM(){
+  document.getElementById('amOrg').value=M_ORG;
+  ['amPos','amName','amDept','amId'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('addMModal').classList.add('open');
+}
+function closeAddM(e){if(e.target===document.getElementById('addMModal'))closeAddMDir();}
+function closeAddMDir(){document.getElementById('addMModal').classList.remove('open');}
+function addMConfirm(){
+  const pos=document.getElementById('amPos').value.trim();
+  const name=document.getElementById('amName').value.trim();
+  const dept=document.getElementById('amDept').value.trim();
+  const id=document.getElementById('amId').value.trim();
+  if(!name||!dept||!pos){showToast('직위, 이름, 학과를 입력해주세요');return;}
+  const m=getMembers();
+  if(!m[M_ORG])m[M_ORG]=[];
+  m[M_ORG].push({name,dept,position:pos,id});
+  saveMembers(m);closeAddMDir();renderMembers();renderCheck();renderDash();
+  showToast('✅ '+name+' 추가 완료');
+}
+function deleteM(idx){
+  const m=getMembers();
+  if(!confirm(m[M_ORG][idx].name+' 삭제?'))return;
+  m[M_ORG].splice(idx,1);saveMembers(m);renderMembers();renderCheck();renderDash();
+  showToast('삭제됨');
+}
+
+// ════════════════════════════════════════════════
+// GAS 동기화
+// ════════════════════════════════════════════════
+function updateGasBar(){
+  const bar=document.getElementById('gasBarDash');
+  const txt=document.getElementById('gasBarTxt');
+  const dot=bar.querySelector('.dot');
+  if(GAS_URL){bar.className='gas-bar ok';dot.className='dot ok';txt.textContent='Google Sheets 연동 활성화';}
+  else{bar.className='gas-bar local';dot.className='dot local';txt.textContent='로컬 모드 — GAS 동기화 탭에서 URL 설정';}
+}
+function saveGasUrl(){
+  GAS_URL=document.getElementById('gasUrlIn').value.trim();
+  GAS_URL?localStorage.setItem('yuhan_jang_gasUrl',GAS_URL):localStorage.removeItem('yuhan_jang_gasUrl');
+  updateGasBar();showToast(GAS_URL?'✅ GAS URL 저장됨':'GAS URL 초기화됨');
+}
+function testGas(){
+  if(!GAS_URL){document.getElementById('gasTestResult').textContent='❗ URL 먼저 입력';return;}
+  document.getElementById('gasTestResult').textContent='테스트 중...';
+  gasCall({action:'ping'},(r,e)=>{document.getElementById('gasTestResult').textContent=e?'❌ '+e:'✅ 연결 성공: '+JSON.stringify(r);});
+}
+function appendLog(m){const e=document.getElementById('syncLog');e.textContent+=(e.textContent?'\n':'')+new Date().toLocaleTimeString()+' '+m;}
+function pullFromGas(){
+  if(!GAS_URL){showToast('GAS URL 필요');return;}
+  appendLog('Sheets 불러오는 중...');
+  gasCall({action:'getAllJournals'},(r,e)=>{
+    if(e||!r){appendLog('❌ '+(e||'응답 오류'));return;}
+    const local=getJournals(),ids=new Set(local.map(j=>j.id));
+    const newItems=(r.journals||[]).filter(j=>!ids.has(j.id));
+    saveJournals([...local,...newItems]);
+    appendLog('✅ 완료 (신규 '+newItems.length+'건)');renderDash();renderList();
+  });
+}
+function pushToGas(){
+  if(!GAS_URL){showToast('GAS URL 필요');return;}
+  const js=getJournals().filter(j=>j.status!=='draft'&&!j.synced);
+  if(!js.length){appendLog('⚠️ 업로드할 데이터 없음');return;}
+  appendLog(js.length+'건 업로드 중...');
+  gasCall({action:'bulkUpload',data:JSON.stringify(js)},(r,e)=>{
+    if(e){appendLog('❌ '+e);return;}
+    const all=getJournals(),ids=new Set(js.map(j=>j.id));
+    all.forEach(j=>{if(ids.has(j.id))j.synced=true;});saveJournals(all);
+    appendLog('✅ 업로드 완료 ('+js.length+'건)');
+  });
+}
+
+const GAS_CODE=`const SHEET_ID='YOUR_SPREADSHEET_ID';
+const SS=SpreadsheetApp.openById(SHEET_ID);
+function doGet(e){
+  const p=e.parameter,cb=p.callback||'cb';let r;
+  try{switch(p.action){
+    case 'ping':          r={ok:true,msg:'pong'};break;
+    case 'submitJournal': r=submitJ(p);break;
+    case 'getAllJournals':r=getAllJ();break;
+    case 'updateStatus':  r=updSt(p);break;
+    case 'bulkUpload':    r=bulkUp(p);break;
+    case 'orgSign':       r=orgSign(p);break;
+    default:r={ok:false,msg:'unknown'};
+  }}catch(err){r={ok:false,msg:err.toString()};}
+  return ContentService.createTextOutput(cb+'('+JSON.stringify(r)+')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+function getSheet(n,h){let s=SS.getSheetByName(n);if(!s){s=SS.insertSheet(n);if(h)s.appendRow(h);}return s;}
+const JH=['id','studentId','studentName','dept','org','position','year','month','weeksJson','status','submittedAt','approvedAt','approvedBy','comment'];
+function submitJ(p){
+  const s=getSheet('Journals',JH),d=JSON.parse(p.data);
+  if(s.getDataRange().getValues().slice(1).find(r=>r[0]==d.id))return{ok:false,msg:'dup'};
+  s.appendRow([d.id,d.studentId,d.studentName,d.dept,d.org,d.position,d.year,d.month,JSON.stringify(d.weeks),'submitted',d.submittedAt,'','','']);
+  return{ok:true};
+}
+function getAllJ(){
+  const s=getSheet('Journals',JH),rows=s.getDataRange().getValues();
+  if(rows.length<=1)return{ok:true,journals:[]};
+  const h=rows[0];return{ok:true,journals:rows.slice(1).map(r=>r2o(h,r))};
+}
+function updSt(p){
+  const s=getSheet('Journals',JH),rows=s.getDataRange().getValues();
+  for(let i=1;i<rows.length;i++){
+    if(rows[i][0]==p.id){
+      s.getRange(i+1,10).setValue(p.status);
+      if(p.status==='approved'){s.getRange(i+1,12).setValue(new Date().toISOString());s.getRange(i+1,13).setValue(p.approvedBy||'');}
+      if(p.comment)s.getRange(i+1,14).setValue(p.comment);
+      return{ok:true};
+    }
+  }return{ok:false,msg:'not found'};
+}
+function bulkUp(p){
+  const s=getSheet('Journals',JH),ex=s.getDataRange().getValues().slice(1).map(r=>r[0]);
+  const items=JSON.parse(p.data);let added=0;
+  items.forEach(d=>{if(!ex.includes(d.id)){s.appendRow([d.id,d.studentId,d.studentName,d.dept,d.org,d.position,d.year,d.month,JSON.stringify(d.weeks||[]),d.status,d.submittedAt,d.approvedAt||'',d.approvedBy||'',d.comment||'']);added++;}});
+  return{ok:true,added};
+}
+function orgSign(p){
+  const s=getSheet('OrgApprovals',['key','role','by','at']);
+  s.appendRow([p.key,p.role,p.by,new Date().toISOString()]);
+  return{ok:true};
+}
+function r2o(h,r){const o={};h.forEach((k,i)=>o[k]=r[i]);if(o.weeksJson){try{o.weeks=JSON.parse(o.weeksJson);}catch{o.weeks=[];}}return o;}`;
+
+function renderGasCode(){document.getElementById('gasCodePre').textContent=GAS_CODE;}
+function copyGasCode(){navigator.clipboard.writeText(GAS_CODE).then(()=>showToast('✅ GAS 코드 복사됨')).catch(()=>showToast('직접 선택해서 복사해주세요'));}
+
+// ════════════════════════════════════════════════
+// 계정 관리
+// ════════════════════════════════════════════════
+function changeAdminPw(){
+  const old=document.getElementById('chOld').value,nw=document.getElementById('chNew').value,nw2=document.getElementById('chNew2').value;
+  if(CA.pw!==btoa(old)){showToast('현재 비번 오류');return;}
+  if(nw.length<6){showToast('6자 이상');return;}
+  if(nw!==nw2){showToast('비번 불일치');return;}
+  const a=getAdmins();a[CA.id].pw=btoa(nw);saveAdmins(a);CA.pw=btoa(nw);
+  ['chOld','chNew','chNew2'].forEach(id=>document.getElementById(id).value='');
+  showToast('✅ 변경 완료');
+}
+
+// ════════════════════════════════════════════════
+// 유틸
+// ════════════════════════════════════════════════
+function fdt(iso){if(!iso)return '-';const d=new Date(iso);return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');}
+function sbadge(s){
+  if(s==='submitted')return '<span class="badge b-yellow">승인대기</span>';
+  if(s==='approved') return '<span class="badge b-green">팀장승인</span>';
+  if(s==='rejected') return '<span class="badge b-red">반려</span>';
+  return '<span class="badge b-gray">임시저장</span>';
+}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+
+// ── 자동 로그인 ──
+(function(){
+  const sess=S.get('adminSession');
+  if(sess&&sess.id){const a=getAdmins()[sess.id];if(a){CA=a;enterApp();}}
+})();
+</script>
+</body>
+</html>

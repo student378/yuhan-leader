@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="활동일지">
+<link rel="manifest" href="data:application/json,{}">
+<title>간부장학생 활동일지</title>
+<style>
+/* ── 리셋 & 기본 ── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;background:#eef2ff;min-height:100vh;min-height:100dvh;overscroll-behavior:none}
+
+/* ── 로딩 ── */
+#lo{position:fixed;inset:0;background:rgba(255,255,255,.9);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.spinner{width:32px;height:32px;border:3px solid #dbeafe;border-top-color:#1d4ed8;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#lo p{font-size:13px;color:#64748b;font-weight:600}
+
+/* ══════════════════════════════
+   로그인 화면
+══════════════════════════════ */
+#loginScreen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;min-height:100dvh;padding:16px;
+  background:linear-gradient(160deg,#1d4ed8 0%,#3b82f6 100%);
+}
+.lcard{
+  background:#fff;border-radius:20px;padding:28px 22px;
+  width:100%;max-width:420px;
+  box-shadow:0 16px 48px rgba(0,0,0,.22);
+}
+.llogo{text-align:center;margin-bottom:20px}
+.llogo .school{font-size:11px;color:#9ca3af;letter-spacing:2px;margin-bottom:3px}
+.llogo .sys{font-size:20px;font-weight:800;color:#1d4ed8}
+.llogo .sub{font-size:11px;color:#9ca3af;margin-top:2px}
+
+/* 탭 */
+.ltabs{display:flex;margin-bottom:18px;border-radius:10px;overflow:hidden;border:1.5px solid #e5e7eb}
+.ltab{flex:1;padding:9px 4px;text-align:center;font-size:12px;font-weight:600;color:#9ca3af;cursor:pointer;background:#fff;transition:all .15s;border:none;font-family:inherit}
+.ltab.active{background:#1d4ed8;color:#fff}
+
+/* 폼 */
+.fg{margin-bottom:13px}
+.fg label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+.fg input,.fg select{
+  width:100%;padding:13px 14px;border:1.5px solid #e5e7eb;border-radius:10px;
+  font-size:16px;/* iOS zoom 방지: 16px 이상 */
+  outline:none;font-family:inherit;transition:border-color .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.fg input:focus,.fg select:focus{border-color:#1d4ed8;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+.fg .hint{font-size:11px;color:#9ca3af;margin-top:3px}
+.btn-login{
+  width:100%;padding:15px;background:#1d4ed8;color:#fff;
+  border:none;border-radius:11px;font-size:16px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  -webkit-appearance:none;
+}
+.btn-login:active{background:#1e40af}
+.err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:10px 13px;font-size:13px;margin-bottom:11px;display:none;line-height:1.5}
+.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:8px;padding:10px 13px;font-size:13px;margin-bottom:11px;display:none;line-height:1.5}
+
+/* ══════════════════════════════
+   앱 화면
+══════════════════════════════ */
+#appScreen{display:none;min-height:100vh;min-height:100dvh;background:#eef2ff;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+
+/* 상단 헤더 */
+.topbar{
+  background:#1d4ed8;color:#fff;
+  padding:12px 16px 10px;
+  padding-top:calc(12px + env(safe-area-inset-top));
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 2px 8px rgba(29,78,216,.35);
+}
+.topbar .t{font-size:15px;font-weight:700;line-height:1.2}
+.topbar .u{font-size:11px;opacity:.8;margin-top:2px;line-height:1.2}
+.btn-out{
+  background:rgba(255,255,255,.2);border:none;color:#fff;
+  padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;
+}
+
+/* ── 페이지 ── */
+.page{display:none;padding:14px 14px 0}
+.page.active{display:block}
+
+/* ── 바텀 네비 ── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;
+  display:flex;background:#fff;
+  border-top:1px solid #e5e7eb;
+  z-index:100;
+  padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -2px 10px rgba(0,0,0,.08);
+}
+.ni{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:9px 4px 7px;font-size:10px;color:#9ca3af;
+  cursor:pointer;transition:color .15s;font-weight:700;
+  -webkit-tap-highlight-color:transparent;
+  border:none;background:none;font-family:inherit;
+}
+.ni svg{width:22px;height:22px;margin-bottom:3px}
+.ni.active{color:#1d4ed8}
+
+/* ── 카드 ── */
+.card{background:#fff;border-radius:14px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.ctitle{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+
+/* ── 홈 ── */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sc{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.snum{font-size:24px;font-weight:800;color:#1d4ed8}
+.slbl{font-size:11px;color:#6b7280;margin-top:2px;font-weight:600}
+
+.irow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f3f4f6}
+.irow:last-child{border-bottom:none}
+.ik{font-size:13px;color:#6b7280}
+.iv{font-size:13px;font-weight:600;color:#1e293b;text-align:right;max-width:60%;word-break:keep-all}
+
+/* GAS 상태 */
+.gas-bar{display:flex;align-items:center;gap:6px;font-size:11px;padding:6px 10px;border-radius:7px;margin-bottom:10px}
+.gas-bar.ok{background:#d1fae5;color:#065f46}
+.gas-bar.local{background:#fef3c7;color:#92400e}
+.gdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.gdot.ok{background:#22c55e}.gdot.local{background:#f59e0b}
+
+.notice{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;font-size:12px;color:#92400e;line-height:1.6;margin-bottom:12px}
+
+/* ══════════════════════════════
+   작성 폼
+══════════════════════════════ */
+/* 작성탭 패딩: 바텀바 + 제출버튼 바 높이만큼 */
+#pageWrite{padding-bottom:calc(130px + env(safe-area-inset-bottom))}
+
+.frow{display:flex;gap:9px;margin-bottom:10px}
+.ffield{flex:1;min-width:0}
+.ffield label{font-size:12px;font-weight:700;color:#374151;margin-bottom:4px;display:block}
+.ffield input,.ffield select{
+  width:100%;padding:11px 12px;border:1.5px solid #e5e7eb;border-radius:9px;
+  font-size:16px;/* iOS zoom 방지 */
+  outline:none;font-family:inherit;transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.ffield input:focus,.ffield select:focus{border-color:#1d4ed8}
+.ffield input[readonly]{background:#f9fafb;color:#6b7280;font-size:14px}
+
+/* 주차 섹션 */
+.wsec{margin-bottom:14px}
+.wtitle{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;color:#1d4ed8;
+  margin-bottom:8px;padding:7px 11px;
+  background:#eff6ff;border-radius:8px;
+}
+.wrange{font-size:10px;color:#6b7280;font-weight:400}
+.alist{display:flex;flex-direction:column;gap:7px}
+.aitem{display:flex;gap:7px;align-items:center}
+.aitem input{
+  flex:1;padding:12px 13px;border:1.5px solid #e5e7eb;border-radius:9px;
+  font-size:16px;/* iOS zoom 방지 */
+  outline:none;font-family:inherit;transition:border-color .15s;
+}
+.aitem input:focus{border-color:#1d4ed8}
+.aitem input::placeholder{color:#9ca3af;font-size:14px}
+.btn-add,.btn-del{
+  width:38px;height:38px;border-radius:9px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+  font-weight:700;
+}
+.btn-add{background:#dbeafe;color:#1d4ed8}
+.btn-del{background:#fee2e2;color:#dc2626}
+.btn-add:active,.btn-del:active{opacity:.7}
+
+/* 제출 고정 바 */
+.sbar{
+  position:fixed;
+  bottom:calc(64px + env(safe-area-inset-bottom));
+  left:0;right:0;
+  background:#fff;border-top:1px solid #e5e7eb;
+  padding:10px 14px;
+  display:none;gap:9px;z-index:60;
+  box-shadow:0 -2px 10px rgba(0,0,0,.08);
+}
+.sbar.visible{display:flex}
+.btn-draft{
+  flex:1;padding:13px;background:#f3f4f6;color:#374151;
+  border:none;border-radius:10px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+}
+.btn-submit{
+  flex:2;padding:13px;background:#1d4ed8;color:#fff;
+  border:none;border-radius:10px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+}
+.btn-draft:active{background:#e5e7eb}
+.btn-submit:active{background:#1e40af}
+
+/* ══════════════════════════════
+   제출 내역
+══════════════════════════════ */
+.hist-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.hist-header-title{font-size:14px;font-weight:700;color:#1e293b}
+.btn-sync{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:7px 12px;background:#dbeafe;color:#1d4ed8;
+  border:none;border-radius:8px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+}
+.hitem{border:1.5px solid #e5e7eb;border-radius:12px;padding:13px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;background:#fff}
+.hitem:active{border-color:#1d4ed8;background:#f8faff}
+.hhead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;gap:8px}
+.htitle{font-size:14px;font-weight:700;color:#1e293b;line-height:1.3}
+.hmeta{font-size:11px;color:#6b7280;line-height:1.5}
+.hcomment{margin-top:7px;font-size:12px;color:#1d4ed8;background:#eff6ff;border-radius:6px;padding:6px 9px;line-height:1.5}
+
+/* ── 뱃지 ── */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-blue{background:#dbeafe;color:#1d4ed8}
+.b-yellow{background:#fef3c7;color:#92400e}
+.b-green{background:#d1fae5;color:#065f46}
+.b-red{background:#fee2e2;color:#991b1b}
+.b-gray{background:#f3f4f6;color:#6b7280}
+
+/* ── 모달 (바텀시트) ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{
+  background:#fff;border-radius:20px 20px 0 0;padding:20px 18px;
+  padding-bottom:calc(20px + env(safe-area-inset-bottom));
+  width:100%;max-width:520px;max-height:88vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .25s;
+}
+.modal-bg.open .modal{transform:translateY(0)}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.mtitle{font-size:16px;font-weight:700}
+.btn-x{background:#f3f4f6;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+
+/* ── 상세 내용 ── */
+.det-week-title{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#1d4ed8;margin:10px 0 6px;padding:6px 10px;background:#eff6ff;border-radius:7px}
+.det-act{padding:4px 0 4px 11px;font-size:13px;color:#374151;line-height:1.6}
+
+/* ── 프로필 ── */
+.prof-pw-section{margin-top:4px}
+
+/* ── 토스트 ── */
+.toast{
+  position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));
+  left:50%;transform:translateX(-50%);
+  background:#1e293b;color:#fff;padding:11px 22px;border-radius:22px;
+  font-size:13px;font-weight:700;z-index:999;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  white-space:nowrap;max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1}
+
+/* ── 빈 상태 ── */
+.empty-state{text-align:center;padding:40px 20px;color:#9ca3af}
+.empty-state .emo{font-size:36px;margin-bottom:10px}
+.empty-state p{font-size:13px;line-height:1.6}
+
+@media print{.bnav,.sbar,.topbar,.btn-x,.btn-sync,.no-print{display:none!important}}
+</style>
+</head>
+<body>
+
+<div id="lo" style="display:none"><div class="spinner"></div><p id="lmsg">처리 중...</p></div>
+
+<!-- ══ 로그인 화면 ══ -->
+<div id="loginScreen">
+  <div class="lcard">
+    <div class="llogo">
+      <div class="school">유한대학교</div>
+      <div class="sys">📋 간부장학생 활동일지</div>
+      <div class="sub">학생용 시스템</div>
+    </div>
+    <div class="ltabs">
+      <button class="ltab active" onclick="switchLTab('login')">로그인</button>
+      <button class="ltab" onclick="switchLTab('reg')">회원가입</button>
+      <button class="ltab" onclick="switchLTab('pw')">비번변경</button>
+    </div>
+
+    <!-- 로그인 -->
+    <div id="fLogin">
+      <div id="loginErr" class="err"></div>
+      <div class="fg">
+        <label>학번 (아이디)</label>
+        <input id="loginId" type="text" placeholder="예: 202510029" maxlength="12" inputmode="numeric" autocomplete="username">
+      </div>
+      <div class="fg">
+        <label>비밀번호</label>
+        <input id="loginPw" type="password" placeholder="비밀번호 입력" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" onclick="doLogin()">로그인</button>
+    </div>
+
+    <!-- 회원가입 -->
+    <div id="fReg" style="display:none">
+      <div id="regErr" class="err"></div>
+      <div id="regOk" class="ok"></div>
+      <div class="fg"><label>학번 (아이디)</label>
+        <input id="rId" type="text" placeholder="예: 202510029" maxlength="12" inputmode="numeric">
+        <div class="hint">학번이 로그인 ID로 사용됩니다</div>
+      </div>
+      <div class="fg"><label>이름</label><input id="rName" type="text" placeholder="본인 이름" autocomplete="name"></div>
+      <div class="fg"><label>학과(전공)</label><input id="rDept" type="text" placeholder="예: 식품영양학과"></div>
+      <div class="fg"><label>소속 단체</label>
+        <select id="rOrg"><option value="">선택하세요</option><option>학생자치위원회</option><option>대의원회</option><option>과대표</option></select>
+      </div>
+      <div class="fg"><label>직위</label><input id="rPos" type="text" placeholder="예: 위원장, 과대표"></div>
+      <div class="fg"><label>비밀번호 (8자 이상)</label><input id="rPw" type="password" placeholder="영문+숫자 혼합 권장" autocomplete="new-password"></div>
+      <div class="fg"><label>비밀번호 확인</label><input id="rPw2" type="password" placeholder="비밀번호 재입력" autocomplete="new-password"></div>
+      <button class="btn-login" onclick="doRegister()">가입하기</button>
+    </div>
+
+    <!-- 비번 변경 -->
+    <div id="fPw" style="display:none">
+      <div id="pwErr" class="err"></div>
+      <div id="pwOk" class="ok"></div>
+      <div class="fg"><label>학번</label><input id="pId" type="text" placeholder="학번 입력" inputmode="numeric"></div>
+      <div class="fg"><label>현재 비밀번호</label><input id="pOld" type="password" placeholder="현재 비밀번호"></div>
+      <div class="fg"><label>새 비밀번호</label><input id="pNew" type="password" placeholder="8자 이상"></div>
+      <div class="fg"><label>새 비밀번호 확인</label><input id="pNew2" type="password" placeholder="재입력"></div>
+      <button class="btn-login" onclick="doChangePwLogin()">비밀번호 변경</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 앱 화면 ══ -->
+<div id="appScreen">
+  <div class="topbar">
+    <div>
+      <div class="t">📋 간부장학생 활동일지</div>
+      <div class="u" id="hUser"></div>
+    </div>
+    <button class="btn-out" onclick="doLogout()">로그아웃</button>
+  </div>
+
+  <!-- 홈 탭 -->
+  <div class="page active" id="pageHome">
+    <div id="gasBar" class="gas-bar local"><div class="gdot local"></div><span id="gasBarTxt">GAS URL 미설정 – 로컬 모드</span></div>
+    <div class="sgrid">
+      <div class="sc"><div class="snum" id="sTotal">0</div><div class="slbl">총 제출</div></div>
+      <div class="sc"><div class="snum" id="sPend" style="color:#f59e0b">0</div><div class="slbl">승인 대기</div></div>
+      <div class="sc"><div class="snum" id="sAppr" style="color:#22c55e">0</div><div class="slbl">승인 완료</div></div>
+      <div class="sc"><div class="snum" id="sDraft" style="color:#6b7280">0</div><div class="slbl">임시저장</div></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">👤 내 정보</div>
+      <div id="myInfo"></div>
+    </div>
+    <div class="notice">
+      ⚠️ <strong>제출 안내</strong><br>
+      활동일지는 매월 말 학생자치위원회 및 학생장협의회 정기회의 때 일괄 수합하여 학생복지팀으로 제출합니다.
+    </div>
+  </div>
+
+  <!-- 작성 탭 -->
+  <div class="page" id="pageWrite">
+    <div class="card" style="margin-bottom:10px">
+      <div class="ctitle">✍️ 활동일지 작성</div>
+      <div class="frow">
+        <div class="ffield"><label>년도</label><input id="wYear" readonly></div>
+        <div class="ffield"><label>월</label>
+          <select id="wMonth" onchange="onMonthChange()">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+            <option>9</option><option>10</option><option>11</option><option>12</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="ffield"><label>학번</label><input id="wSid" readonly></div>
+        <div class="ffield"><label>이름</label><input id="wName" readonly></div>
+      </div>
+      <div class="frow">
+        <div class="ffield"><label>학과(전공)</label><input id="wDept" readonly></div>
+        <div class="ffield"><label>소속</label><input id="wOrg" readonly></div>
+      </div>
+      <div class="frow">
+        <div class="ffield" style="max-width:50%"><label>직위</label><input id="wPos" readonly></div>
+      </div>
+    </div>
+    <!-- 주차 섹션 -->
+    <div id="weekSecs"></div>
+  </div>
+
+  <!-- 제출내역 탭 -->
+  <div class="page" id="pageHist">
+    <div class="hist-header">
+      <div class="hist-header-title">제출 내역</div>
+      <button class="btn-sync" onclick="syncJournals()"><span id="syncIco">🔄</span> 동기화</button>
+    </div>
+    <div id="histList"></div>
+  </div>
+
+  <!-- 내정보 탭 -->
+  <div class="page" id="pageProf">
+    <div class="card">
+      <div class="ctitle">👤 내 계정</div>
+      <div id="profInfo"></div>
+    </div>
+    <div class="card prof-pw-section">
+      <div class="ctitle">🔑 비밀번호 변경</div>
+      <div class="fg"><label>현재 비밀번호</label><input id="pOldIn" type="password" placeholder="현재 비밀번호"></div>
+      <div class="fg"><label>새 비밀번호</label><input id="pNewIn" type="password" placeholder="8자 이상"></div>
+      <div class="fg"><label>새 비밀번호 확인</label><input id="pNew2In" type="password" placeholder="재입력"></div>
+      <button class="btn-login" style="font-size:15px;padding:13px" onclick="changePwApp()">변경하기</button>
+    </div>
+  </div>
+
+  <!-- 바텀 네비 -->
+  <nav class="bnav">
+    <button class="ni active" onclick="gp('pageHome',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>홈</span>
+    </button>
+    <button class="ni" onclick="gp('pageWrite',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg><span>작성</span>
+    </button>
+    <button class="ni" onclick="gp('pageHist',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 00-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7a6.96 6.96 0 01-4.72-1.84l-1.42 1.42A8.954 8.954 0 0013 21a9 9 0 000-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg><span>내역</span>
+    </button>
+    <button class="ni" onclick="gp('pageProf',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span>내정보</span>
+    </button>
+  </nav>
+
+  <!-- 제출 고정 바 (작성탭 전용) -->
+  <div class="sbar" id="sbar">
+    <button class="btn-draft" onclick="saveDraft()">💾 임시저장</button>
+    <button class="btn-submit" onclick="submitJournal()">제출하기 →</button>
+  </div>
+</div>
+
+<!-- 상세 모달 -->
+<div class="modal-bg" id="detModal" onclick="closeMod(event)">
+  <div class="modal">
+    <div class="mhead">
+      <div class="mtitle" id="detTitle"></div>
+      <button class="btn-x" onclick="closeModDir()">✕</button>
+    </div>
+    <div id="detContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// GAS URL (admin.html과 localStorage 공유)
+// ═══════════════════════════════════════════
+const GAS_URL_KEY='yuhan_jang_gasUrl';
+let GAS_URL=localStorage.getItem(GAS_URL_KEY)||'';
+const GAS_OK=()=>!!localStorage.getItem(GAS_URL_KEY);
+
+// ══ 스토리지 ══
+const S={
+  get(k){try{return JSON.parse(localStorage.getItem('yuhan_jang_'+k));}catch{return null;}},
+  set(k,v){try{localStorage.setItem('yuhan_jang_'+k,JSON.stringify(v));}catch{}},
+  del(k){try{localStorage.removeItem('yuhan_jang_'+k);}catch{}}
+};
+
+// ══ GAS JSONP ══
+function gasCall(params,cb){
+  const url=localStorage.getItem(GAS_URL_KEY)||'';
+  if(!url){cb(null,'GAS URL 미설정');return;}
+  const name='cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const sc=document.createElement('script');
+  const timer=setTimeout(()=>{delete window[name];sc.remove();cb(null,'timeout');},12000);
+  window[name]=d=>{clearTimeout(timer);delete window[name];sc.remove();cb(d,null);};
+  sc.src=url+'?'+new URLSearchParams({...params,callback:name});
+  sc.onerror=()=>{clearTimeout(timer);delete window[name];cb(null,'network error');};
+  document.body.appendChild(sc);
+}
+
+// ══ 데이터 헬퍼 ══
+function getUsers(){return S.get('users')||{};}
+function saveUsers(u){S.set('users',u);}
+function getJournals(){return S.get('journals')||[];}
+function saveJournals(j){S.set('journals',j);}
+
+// ══ 주차 계산 ══
+function getWeeks(year,month){
+  const weeks=[],last=new Date(year,month,0).getDate();
+  let cur=1,w=1;
+  while(cur<=last&&w<=6){
+    const dow=new Date(year,month-1,cur).getDay();
+    const end=Math.min(cur+(6-dow),last);
+    weeks.push({label:w+'주차',start:cur,end,range:`${month}/${cur}~${month}/${end}`});
+    cur=end+1;w++;
+  }
+  return weeks;
+}
+
+// ═══ 현재 유저 ═══
+let CU=null;
+
+// ══ 로그인 탭 전환 ══
+function switchLTab(t){
+  document.querySelectorAll('.ltab').forEach((el,i)=>el.classList.toggle('active',['login','reg','pw'][i]===t));
+  document.getElementById('fLogin').style.display=t==='login'?'block':'none';
+  document.getElementById('fReg').style.display=t==='reg'?'block':'none';
+  document.getElementById('fPw').style.display=t==='pw'?'block':'none';
+}
+function showE(id,msg){const e=document.getElementById(id);e.textContent=msg;e.style.display='block';setTimeout(()=>e.style.display='none',4500);}
+function showOk(id,msg){const e=document.getElementById(id);e.textContent=msg;e.style.display='block';}
+
+// ══ 회원가입 ══
+function doRegister(){
+  const id=v('rId'),name=v('rName'),dept=v('rDept'),org=v('rOrg'),pos=v('rPos'),pw=v('rPw'),pw2=v('rPw2');
+  if(!id||!name||!dept||!org||!pos)return showE('regErr','모든 항목을 입력해주세요.');
+  if(!/^\d{9,12}$/.test(id))return showE('regErr','학번 형식이 맞지 않습니다 (숫자 9~12자리).');
+  if(pw.length<8)return showE('regErr','비밀번호는 8자 이상이어야 합니다.');
+  if(pw!==pw2)return showE('regErr','비밀번호가 일치하지 않습니다.');
+  const users=getUsers();
+  if(users[id])return showE('regErr','이미 가입된 학번입니다.');
+  const user={id,name,dept,org,position:pos,pw:btoa(unescape(encodeURIComponent(pw))),joinedAt:new Date().toISOString()};
+  users[id]=user;saveUsers(users);
+  if(GAS_OK())gasCall({action:'registerUser',id,name,dept,org,position:pos},()=>{});
+  showOk('regOk','✅ 가입 완료! 로그인 탭에서 로그인하세요.');
+  ['rId','rName','rDept','rPos','rPw','rPw2'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('rOrg').value='';
+}
+
+// ══ 로그인 ══
+function doLogin(){
+  const id=v('loginId'),pw=v('loginPw');
+  const users=getUsers();
+  if(!users[id])return showE('loginErr','등록되지 않은 학번입니다. 회원가입을 먼저 해주세요.');
+  if(users[id].pw!==btoa(unescape(encodeURIComponent(pw))))return showE('loginErr','비밀번호가 올바르지 않습니다.');
+  CU=users[id];
+  S.set('session',{id,at:new Date().toISOString()});
+  document.getElementById('loginPw').value='';
+  enterApp();
+}
+function doLogout(){
+  CU=null;S.del('session');
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginId').value='';
+}
+
+// ══ 로그인 전 비번 변경 ══
+function doChangePwLogin(){
+  const id=v('pId'),old=v('pOld'),nw=v('pNew'),nw2=v('pNew2');
+  const users=getUsers();
+  if(!users[id])return showE('pwErr','등록되지 않은 학번입니다.');
+  if(users[id].pw!==btoa(unescape(encodeURIComponent(old))))return showE('pwErr','현재 비밀번호가 올바르지 않습니다.');
+  if(nw.length<8)return showE('pwErr','새 비밀번호는 8자 이상이어야 합니다.');
+  if(nw!==nw2)return showE('pwErr','새 비밀번호가 일치하지 않습니다.');
+  users[id].pw=btoa(unescape(encodeURIComponent(nw)));
+  saveUsers(users);
+  showOk('pwOk','✅ 비밀번호가 변경되었습니다.');
+}
+
+// ══ 앱 진입 ══
+function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  document.getElementById('hUser').textContent=CU.name+' · '+CU.org+' '+CU.position;
+  updateGasBar();
+  renderHome();
+  initWriteForm();
+  renderHist();
+  renderProf();
+}
+
+function updateGasBar(){
+  const bar=document.getElementById('gasBar');
+  const txt=document.getElementById('gasBarTxt');
+  const dot=bar.querySelector('.gdot');
+  const ok=GAS_OK();
+  bar.className='gas-bar '+(ok?'ok':'local');
+  dot.className='gdot '+(ok?'ok':'local');
+  txt.textContent=ok?'Google Sheets 연동 활성화':'로컬 모드 (관리자 페이지에서 GAS URL 설정 후 연동)';
+}
+
+// ══ 탭 전환 ══
+function gp(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('sbar').classList.toggle('visible',id==='pageWrite');
+  if(id==='pageHist')renderHist();
+  // 스크롤 최상단
+  window.scrollTo(0,0);
+}
+
+// ══ 홈 ══
+function renderHome(){
+  const js=getJournals().filter(j=>j.studentId===CU.id);
+  document.getElementById('sTotal').textContent=js.filter(j=>j.status!=='draft').length;
+  document.getElementById('sPend').textContent=js.filter(j=>j.status==='submitted').length;
+  document.getElementById('sAppr').textContent=js.filter(j=>j.status==='approved').length;
+  document.getElementById('sDraft').textContent=js.filter(j=>j.status==='draft').length;
+  document.getElementById('myInfo').innerHTML=`
+    <div class="irow"><span class="ik">학번</span><span class="iv">${CU.id}</span></div>
+    <div class="irow"><span class="ik">이름</span><span class="iv">${CU.name}</span></div>
+    <div class="irow"><span class="ik">학과</span><span class="iv">${CU.dept}</span></div>
+    <div class="irow"><span class="ik">소속</span><span class="iv">${CU.org}</span></div>
+    <div class="irow"><span class="ik">직위</span><span class="iv">${CU.position}</span></div>`;
+}
+
+// ══ 작성 폼 초기화 ══
+function initWriteForm(){
+  const now=new Date();
+  document.getElementById('wYear').value=now.getFullYear()+'년도';
+  document.getElementById('wMonth').value=now.getMonth()+1;
+  document.getElementById('wSid').value=CU.id;
+  document.getElementById('wName').value=CU.name;
+  document.getElementById('wDept').value=CU.dept;
+  document.getElementById('wOrg').value=CU.org;
+  document.getElementById('wPos').value=CU.position;
+  renderWeekSecs();
+  loadDraft();
+}
+function onMonthChange(){renderWeekSecs();loadDraft();}
+function renderWeekSecs(){
+  const month=parseInt(document.getElementById('wMonth').value);
+  const year=new Date().getFullYear();
+  const weeks=getWeeks(year,month);
+  document.getElementById('weekSecs').innerHTML=weeks.map((w,wi)=>`
+    <div class="wsec">
+      <div class="wtitle">📅 ${w.label} <span class="wrange">${w.range}</span></div>
+      <div class="alist" id="wl_${wi}">
+        <div class="aitem">
+          <input type="text" placeholder="● 활동 내용을 입력하세요" data-week="${wi}" inputmode="text" enterkeyhint="next">
+          <button class="btn-add" onclick="addRow(${wi})">＋</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function addRow(wi){
+  const list=document.getElementById('wl_'+wi);
+  const div=document.createElement('div');
+  div.className='aitem';
+  div.innerHTML=`<input type="text" placeholder="● 활동 내용 입력" data-week="${wi}" inputmode="text" enterkeyhint="next"><button class="btn-del" onclick="this.parentElement.remove()">－</button>`;
+  list.appendChild(div);
+  // 키보드가 올라온 뒤 포커스
+  setTimeout(()=>div.querySelector('input').focus(),100);
+}
+function collectActs(){
+  const d={};
+  document.querySelectorAll('[data-week]').forEach(inp=>{
+    const w=inp.dataset.week;if(!d[w])d[w]=[];
+    if(inp.value.trim())d[w].push(inp.value.trim());
+  });
+  return d;
+}
+function fillActs(data){
+  Object.keys(data).forEach(wi=>{
+    const list=document.getElementById('wl_'+wi);if(!list)return;
+    const vals=data[wi]||[];if(!vals.length)return;
+    const inputs=list.querySelectorAll('input');
+    vals.forEach((val,i)=>{
+      if(i<inputs.length){inputs[i].value=val;}
+      else{addRow(parseInt(wi));const ins=list.querySelectorAll('input');if(ins[i])ins[i].value=val;}
+    });
+  });
+}
+
+// ══ 임시저장 ══
+function saveDraft(){
+  const month=document.getElementById('wMonth').value;
+  S.set('draft_'+CU.id+'_'+month,{month,acts:collectActs(),at:new Date().toISOString()});
+  showToast('💾 임시저장 완료');
+}
+function loadDraft(){
+  const month=document.getElementById('wMonth').value;
+  const d=S.get('draft_'+CU.id+'_'+month);
+  if(d&&d.acts)setTimeout(()=>fillActs(d.acts),80);
+}
+
+// ══ 제출 ══
+function submitJournal(){
+  const month=parseInt(document.getElementById('wMonth').value);
+  const year=new Date().getFullYear();
+  const acts=collectActs();
+  if(!Object.values(acts).some(a=>a.length>0)){showToast('❗ 활동 내용을 1건 이상 입력해주세요.');return;}
+  const journals=getJournals();
+  const dup=journals.find(j=>j.studentId===CU.id&&j.year===year&&j.month===month&&j.status!=='draft');
+  if(dup){showToast(month+'월 활동일지는 이미 제출되었습니다.');return;}
+  const weeks=getWeeks(year,month);
+  const journal={
+    id:'J'+Date.now(),
+    studentId:CU.id,studentName:CU.name,dept:CU.dept,org:CU.org,position:CU.position,
+    year,month,
+    weeks:weeks.map((w,i)=>({...w,activities:acts[i]||[]})),
+    status:'submitted',submittedAt:new Date().toISOString(),
+    approvedAt:null,approvedBy:'',comment:'',synced:false
+  };
+  showLoading('제출 중...');
+  function afterSave(){
+    journals.push(journal);saveJournals(journals);
+    S.del('draft_'+CU.id+'_'+month);
+    hideLoading();
+    showToast('✅ 제출 완료!');
+    renderHome();renderHist();
+    gp('pageHist',document.querySelectorAll('.ni')[2]);
+  }
+  if(GAS_OK()){
+    gasCall({action:'submitJournal',data:JSON.stringify(journal)},(res,err)=>{
+      if(!err&&res&&res.ok)journal.synced=true;
+      afterSave();
+    });
+  }else afterSave();
+}
+
+// ══ 서버 동기화 ══
+function syncJournals(){
+  if(!GAS_OK()){showToast('GAS URL이 설정되지 않았습니다.');return;}
+  const ico=document.getElementById('syncIco');
+  ico.style.animation='spin .7s linear infinite';
+  gasCall({action:'getMyJournals',studentId:CU.id},(res,err)=>{
+    ico.style.animation='';
+    if(err||!res){showToast('동기화 실패: '+(err||'오류'));return;}
+    const all=getJournals().filter(j=>j.studentId!==CU.id);
+    const merged=[...all,...(res.journals||[])];
+    saveJournals(merged);
+    renderHist();renderHome();
+    showToast('✅ 동기화 완료 ('+(res.journals||[]).length+'건)');
+  });
+}
+
+// ══ 내역 렌더링 ══
+function renderHist(){
+  const list=getJournals()
+    .filter(j=>j.studentId===CU.id&&j.status!=='draft')
+    .sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt));
+  const c=document.getElementById('histList');
+  if(!list.length){
+    c.innerHTML=`<div class="empty-state"><div class="emo">📭</div><p>제출된 활동일지가 없습니다<br>작성 탭에서 활동일지를 작성해주세요</p></div>`;
+    return;
+  }
+  c.innerHTML=list.map(j=>`
+    <div class="hitem" onclick="viewDet('${j.id}')">
+      <div class="hhead">
+        <div class="htitle">${j.year}년 ${j.month}월 활동일지</div>
+        ${sbadge(j.status)}
+      </div>
+      <div class="hmeta">${j.org} · ${j.position}<br>제출: ${fdt(j.submittedAt)}${j.approvedAt?' · 팀장승인: '+fdt(j.approvedAt):''}${j.synced===false?' · 🔶미동기':''}
+      </div>
+      ${j.comment?`<div class="hcomment">💬 ${j.comment}</div>`:''}
+    </div>`).join('');
+}
+
+// ══ 상세 보기 ══
+function viewDet(jid){
+  const j=getJournals().find(x=>x.id===jid);if(!j)return;
+  document.getElementById('detTitle').textContent=j.year+'년 '+j.month+'월 활동일지';
+  document.getElementById('detContent').innerHTML=`
+    <div style="margin-bottom:10px;display:flex;gap:7px;align-items:center;flex-wrap:wrap">${sbadge(j.status)}
+      ${j.approvedBy?`<span style="font-size:11px;color:#64748b">팀장: ${j.approvedBy}</span>`:''}
+    </div>
+    <div class="irow"><span class="ik">학번</span><span class="iv">${j.studentId||'-'}</span></div>
+    <div class="irow"><span class="ik">이름</span><span class="iv">${j.studentName}</span></div>
+    <div class="irow"><span class="ik">학과</span><span class="iv">${j.dept}</span></div>
+    <div class="irow"><span class="ik">소속</span><span class="iv">${j.org} · ${j.position}</span></div>
+    <div class="irow"><span class="ik">제출일</span><span class="iv">${fdt(j.submittedAt)}</span></div>
+    ${j.approvedAt?`<div class="irow"><span class="ik">팀장승인</span><span class="iv">${fdt(j.approvedAt)}</span></div>`:''}
+    <hr style="border:none;border-top:1px solid #e5e7eb;margin:10px 0">
+    ${(j.weeks||[]).map(w=>`
+      <div class="det-week-title">📅 ${w.label} <span style="font-size:10px;color:#6b7280;font-weight:400;margin-left:4px">${w.range}</span></div>
+      ${(w.activities||[]).length?w.activities.map(a=>`<div class="det-act">● ${a}</div>`).join(''):'<div style="font-size:12px;color:#94a3b8;padding-left:10px">활동 내용 없음</div>'}
+      <div style="height:6px"></div>`).join('')}
+    ${j.comment?`<div style="font-size:13px;color:#dc2626;background:#fef2f2;border-radius:7px;padding:9px 11px;margin-top:4px">💬 ${j.comment}</div>`:''}`;
+  document.getElementById('detModal').classList.add('open');
+}
+function closeMod(e){if(e.target===document.getElementById('detModal'))closeModDir();}
+function closeModDir(){document.getElementById('detModal').classList.remove('open');}
+
+// ══ 프로필 ══
+function renderProf(){
+  document.getElementById('profInfo').innerHTML=`
+    <div class="irow"><span class="ik">학번</span><span class="iv">${CU.id}</span></div>
+    <div class="irow"><span class="ik">이름</span><span class="iv">${CU.name}</span></div>
+    <div class="irow"><span class="ik">학과</span><span class="iv">${CU.dept}</span></div>
+    <div class="irow"><span class="ik">소속</span><span class="iv">${CU.org}</span></div>
+    <div class="irow"><span class="ik">직위</span><span class="iv">${CU.position}</span></div>
+    <div class="irow"><span class="ik">가입일</span><span class="iv">${fdt(CU.joinedAt)}</span></div>`;
+}
+function changePwApp(){
+  const old=document.getElementById('pOldIn').value;
+  const nw=document.getElementById('pNewIn').value;
+  const nw2=document.getElementById('pNew2In').value;
+  if(CU.pw!==btoa(unescape(encodeURIComponent(old)))){showToast('현재 비밀번호 오류');return;}
+  if(nw.length<8){showToast('8자 이상 입력해주세요');return;}
+  if(nw!==nw2){showToast('새 비밀번호가 일치하지 않습니다');return;}
+  const users=getUsers();
+  users[CU.id].pw=btoa(unescape(encodeURIComponent(nw)));
+  saveUsers(users);CU.pw=users[CU.id].pw;
+  ['pOldIn','pNewIn','pNew2In'].forEach(id=>document.getElementById(id).value='');
+  showToast('✅ 비밀번호 변경 완료');
+}
+
+// ══ 유틸 ══
+function v(id){return(document.getElementById(id).value||'').trim();}
+function fdt(iso){if(!iso)return '-';const d=new Date(iso);return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');}
+function sbadge(s){
+  if(s==='submitted')return '<span class="badge b-yellow">승인대기</span>';
+  if(s==='approved') return '<span class="badge b-green">팀장승인</span>';
+  if(s==='rejected') return '<span class="badge b-red">반려</span>';
+  return '<span class="badge b-gray">임시저장</span>';
+}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2700);}
+function showLoading(m){document.getElementById('lmsg').textContent=m||'';document.getElementById('lo').style.display='flex';}
+function hideLoading(){document.getElementById('lo').style.display='none';}
+
+// ══ 자동 로그인 복원 ══
+(function init(){
+  const sess=S.get('session');
+  if(sess&&sess.id){const u=getUsers()[sess.id];if(u){CU=u;enterApp();return;}}
+})();
+</script>
+</body>
+</html>

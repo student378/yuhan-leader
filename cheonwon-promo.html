@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1f5c">
+<title>천원매점 홍보 모션</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ── 기본 ── */
+:root{
+  --navy:#0b1f5c;
+  --blue:#1d4ed8;
+  --sky:#3b82f6;
+  --yellow:#ffd400;
+  --gold:#f5b800;
+  --red:#ff3b30;
+  --ink:#111827;
+  --paper:#ffffff;
+  --gray:#9ca3af;
+  --page:#05091c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--page);overflow:hidden;
+  font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.hl{font-family:'Black Han Sans','Noto Sans KR',sans-serif;font-weight:400;letter-spacing:-1px}
+
+/* ── 9:16 무대 (1080×1920) — 화면에 맞춰 축소 ── */
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{
+  position:absolute;left:50%;top:50%;width:1080px;height:1920px;
+  transform-origin:0 0;overflow:hidden;background:var(--navy);
+  border-radius:0;box-shadow:0 30px 80px rgba(0,0,0,.5);cursor:pointer;
+}
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;overflow:hidden}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+
+/* ── 장식: 떠다니는 동전 ── */
+.coin{
+  position:absolute;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff6b0 0%,var(--yellow) 35%,var(--gold) 75%,#c98f00 100%);
+  box-shadow:inset 0 0 0 10px rgba(201,143,0,.45),0 18px 40px rgba(0,0,0,.25);
+  display:flex;align-items:center;justify-content:center;
+  color:#8a5a00;font-family:'Black Han Sans',sans-serif;
+}
+
+/* ═════ S1: 영수증 훅 ═════ */
+#s1{background:var(--navy)}
+#s1 .q{position:absolute;top:230px;left:0;right:0;text-align:center;color:#c7d2fe;font-size:58px;font-weight:700}
+#s1 .q b{color:#fff}
+.receipt{
+  position:absolute;left:190px;top:420px;width:700px;padding:60px 60px 70px;
+  background:var(--paper);color:var(--ink);
+  clip-path:polygon(0 0,100% 0,100% 100%,95% 97%,90% 100%,85% 97%,80% 100%,75% 97%,70% 100%,65% 97%,60% 100%,55% 97%,50% 100%,45% 97%,40% 100%,35% 97%,30% 100%,25% 97%,20% 100%,15% 97%,10% 100%,5% 97%,0 100%);
+}
+.receipt h3{font-size:44px;font-weight:900;text-align:center;letter-spacing:6px;margin-bottom:10px}
+.receipt .dash{border-top:4px dashed #d1d5db;margin:26px 0}
+.rline{display:flex;justify-content:space-between;font-size:44px;font-weight:700;padding:12px 0}
+.rline span:last-child{font-variant-numeric:tabular-nums}
+.rtotal{display:flex;justify-content:space-between;align-items:baseline;font-weight:900}
+.rtotal .l{font-size:48px}
+.rtotal .v{font-size:96px;color:var(--red);font-variant-numeric:tabular-nums}
+#s1 .ouch{position:absolute;bottom:250px;left:0;right:0;text-align:center;color:var(--yellow);font-size:120px}
+
+/* ═════ S2: 로고 리빌 ═════ */
+#s2{background:var(--yellow)}
+#s2 .wait{position:absolute;top:300px;left:0;right:0;text-align:center;font-size:84px;color:var(--navy)}
+#s2 .bigcoin{width:520px;height:520px;left:280px;top:520px;font-size:150px;flex-direction:column;line-height:1}
+#s2 .bigcoin small{font-size:56px;margin-top:10px}
+#s2 .uni{position:absolute;top:1130px;left:0;right:0;text-align:center;font-size:64px;font-weight:900;color:var(--navy);letter-spacing:14px}
+#s2 .title{position:absolute;top:1220px;left:0;right:0;text-align:center;font-size:250px;line-height:1;color:var(--navy)}
+#s2 .title span{display:inline-block}
+#s2 .bar{position:absolute;top:1500px;left:170px;width:740px;height:26px;background:var(--red);border-radius:13px;transform-origin:left center}
+#s2 .tag{position:absolute;top:1580px;left:0;right:0;text-align:center;font-size:66px;font-weight:900;color:var(--navy)}
+#s2 .tag em{font-style:normal;background:var(--navy);color:var(--yellow);padding:4px 20px;border-radius:14px}
+
+/* ═════ S3: 상품 카드 ═════ */
+#s3{background:linear-gradient(170deg,var(--blue) 0%,var(--navy) 100%)}
+#s3 .head{position:absolute;top:150px;left:0;right:0;text-align:center}
+#s3 .head .k{font-size:60px;font-weight:700;color:#c7d2fe}
+#s3 .head .h{font-size:150px;color:var(--yellow);line-height:1.1}
+.card{
+  position:absolute;left:110px;top:520px;width:860px;height:1090px;
+  background:var(--paper);border-radius:60px;padding:70px 70px 60px;
+  box-shadow:0 40px 90px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;align-items:center;
+  opacity:0;visibility:hidden;
+}
+.card .icon{width:420px;height:420px}
+.card .name{font-size:96px;color:var(--ink);margin-top:20px}
+.card .was{position:relative;margin-top:40px;font-size:58px;font-weight:700;color:var(--gray)}
+.card .was .strike{position:absolute;left:-14px;right:-14px;top:52%;height:10px;background:var(--red);border-radius:5px;transform:scaleX(0);transform-origin:left center}
+.card .now{margin-top:24px;font-size:200px;line-height:1;color:var(--red)}
+.card .now small{font-size:96px}
+.card .badge{
+  position:absolute;right:-40px;top:-40px;width:250px;height:250px;border-radius:50%;
+  background:var(--red);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 18px 40px rgba(255,59,48,.45);transform:rotate(12deg);
+}
+.card .badge .p{font-size:84px;line-height:1}
+.card .badge .s{font-size:34px;font-weight:900;margin-top:6px}
+
+/* ═════ S4: 비교 ═════ */
+#s4{background:var(--navy)}
+#s4 .q{position:absolute;top:260px;left:0;right:0;text-align:center;font-size:110px;color:#fff}
+#s4 .q b{color:var(--yellow);font-weight:400}
+.row{position:absolute;left:110px;width:860px}
+.row .lab{font-size:54px;font-weight:900;color:#c7d2fe;margin-bottom:22px;display:flex;justify-content:space-between}
+.row .lab .v{color:#fff;font-variant-numeric:tabular-nums}
+.row .track{height:120px;border-radius:60px;background:rgba(255,255,255,.08);overflow:hidden}
+.row .fill{height:100%;border-radius:60px;transform:scaleX(0);transform-origin:left center}
+#r1{top:620px}
+#r1 .fill{background:#64748b}
+#r2{top:900px}
+#r2 .fill{background:var(--yellow)}
+#r2 .lab{color:var(--yellow)}
+#s4 .save{position:absolute;top:1210px;left:0;right:0;text-align:center}
+#s4 .save .k{font-size:64px;font-weight:900;color:#c7d2fe}
+#s4 .save .v{font-size:230px;line-height:1.05;color:var(--yellow);font-variant-numeric:tabular-nums}
+#s4 .save .pct{display:inline-block;margin-top:20px;font-size:64px;font-weight:900;color:#fff;background:var(--red);padding:10px 40px;border-radius:50px}
+
+/* ═════ S5: CTA ═════ */
+#s5{background:var(--yellow)}
+#s5 .rays{
+  position:absolute;left:50%;top:50%;width:3200px;height:3200px;margin:-1600px 0 0 -1600px;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.35) 0deg 10deg,transparent 10deg 20deg);
+}
+#s5 .wrap{position:absolute;inset:0}
+#s5 .l1{position:absolute;top:230px;left:0;right:0;text-align:center;font-size:76px;font-weight:900;color:var(--navy)}
+#s5 .l1 em{font-style:normal;color:var(--red)}
+#s5 .l2{position:absolute;top:340px;left:0;right:0;text-align:center;font-size:150px;color:var(--navy);line-height:1.05}
+#s5 .logo{
+  position:absolute;left:120px;top:690px;width:840px;padding:60px 40px 70px;border-radius:60px;
+  background:var(--navy);color:#fff;text-align:center;box-shadow:0 30px 70px rgba(11,31,92,.35);
+}
+#s5 .logo .u{font-size:58px;font-weight:900;letter-spacing:12px;color:#c7d2fe}
+#s5 .logo .t{font-size:200px;line-height:1.05;color:var(--yellow)}
+#s5 .logo .s{font-size:58px;font-weight:700;margin-top:10px}
+#s5 .logo .s b{color:var(--yellow)}
+#s5 .info{position:absolute;top:1290px;left:0;right:0;text-align:center;font-size:52px;font-weight:700;color:var(--navy);line-height:1.6}
+#s5 .cta{
+  position:absolute;left:190px;top:1540px;width:700px;height:170px;border-radius:85px;
+  background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:80px;box-shadow:0 20px 50px rgba(255,59,48,.4);
+}
+
+/* ── 플래시 전환 ── */
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+
+/* ── 컨트롤 (렌더 모드에서는 숨김) ── */
+#ui{position:fixed;left:0;right:0;bottom:0;padding:12px 16px 16px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:13px;z-index:10}
+#ui button{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:16px;cursor:pointer}
+#ui button:hover{background:rgba(255,255,255,.28)}
+#prog{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.2);cursor:pointer;position:relative}
+#prog i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:3px;background:var(--yellow)}
+body.render #ui{display:none}
+body.render #stage{box-shadow:none}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+    <!-- S1 영수증 훅 -->
+    <section class="scene" id="s1">
+      <p class="q">편의점에서 <b>간식 좀</b> 샀을 뿐인데…</p>
+      <div class="receipt">
+        <h3>RECEIPT</h3>
+        <div class="dash"></div>
+        <div id="rlines"></div>
+        <div class="dash"></div>
+        <div class="rtotal"><span class="l">합계</span><span class="v hl" id="rtotal">0원</span></div>
+      </div>
+      <p class="ouch hl">통장 텅장…</p>
+    </section>
+
+    <!-- S2 로고 -->
+    <section class="scene" id="s2">
+      <p class="wait hl">잠깐! 유한인이라면?</p>
+      <div class="coin bigcoin"><span>1,000</span><small>WON</small></div>
+      <p class="uni">유한대학교</p>
+      <h1 class="title hl" id="s2title">천원매점</h1>
+      <div class="bar"></div>
+      <p class="tag"><em>원가 수준</em>의 착한 가격</p>
+    </section>
+
+    <!-- S3 상품 -->
+    <section class="scene" id="s3">
+      <div class="head">
+        <p class="k">원가 대비 이 가격 실화?</p>
+        <p class="h hl">전 상품 1,000원</p>
+      </div>
+      <div id="cards"></div>
+    </section>
+
+    <!-- S4 비교 -->
+    <section class="scene" id="s4">
+      <p class="q hl" id="s4q"></p>
+      <div class="row" id="r1">
+        <div class="lab"><span>편의점</span><span class="v" id="r1v">0원</span></div>
+        <div class="track"><div class="fill"></div></div>
+      </div>
+      <div class="row" id="r2">
+        <div class="lab"><span>천원매점</span><span class="v" id="r2v">0원</span></div>
+        <div class="track"><div class="fill"></div></div>
+      </div>
+      <div class="save">
+        <p class="k">한 번 장볼 때마다</p>
+        <p class="v hl" id="savev">0원</p>
+        <p class="k" style="margin-top:-6px">절약!</p>
+        <span class="pct" id="savep"></span>
+      </div>
+    </section>
+
+    <!-- S5 CTA -->
+    <section class="scene" id="s5">
+      <div class="rays"></div>
+      <div class="wrap">
+        <p class="l1">원가 대비 <em>아주 저렴하게</em></p>
+        <p class="l2 hl">지갑은 가볍게<br>배는 든든하게</p>
+        <div class="logo">
+          <p class="u">유한대학교</p>
+          <p class="t hl">천원매점</p>
+          <p class="s">모든 상품 단돈 <b>1,000원</b></p>
+        </div>
+        <p class="info" id="info"></p>
+        <div class="cta hl">지금 바로 GO!</div>
+      </div>
+    </section>
+
+    <div id="flash"></div>
+  </div>
+</div>
+
+<div id="ui">
+  <button id="btnPlay" aria-label="재생/일시정지">❚❚</button>
+  <button id="btnRe" aria-label="처음부터">↺</button>
+  <div id="prog"><i></i></div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   ✏️ 여기만 수정하세요 — 실제 상품/가격/안내 정보
+   was: 시중(편의점) 가격, 천원매점 가격은 모두 1,000원
+   icon: ramen | kimbap | drink | snack
+════════════════════════════════════════════ */
+const CONFIG = {
+  price: 1000,
+  items: [
+    { name: '컵라면',   was: 1800, icon: 'ramen'  },
+    { name: '삼각김밥', was: 1500, icon: 'kimbap' },
+    { name: '음료',     was: 2000, icon: 'drink'  },
+    { name: '과자',     was: 1700, icon: 'snack'  },
+  ],
+  // 비워 두면 화면에 표시되지 않습니다. 예: '📍 학생회관 1층'
+  location: '',
+  hours: '',
+};
+
+/* ── 상품 아이콘 (SVG) ── */
+const ICONS = {
+  ramen: `<svg viewBox="0 0 200 200"><g fill="none" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round">
+      <path class="steam" d="M70 50c-10-12 10-18 0-32"/><path class="steam" d="M100 46c-10-12 10-18 0-32"/><path class="steam" d="M130 50c-10-12 10-18 0-32"/></g>
+    <rect x="28" y="62" width="144" height="22" rx="8" fill="#f1f5f9" stroke="#111827" stroke-width="5"/>
+    <path d="M40 84h120l-16 96H56z" fill="#ef4444" stroke="#111827" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M46 116h108l-4 26H50z" fill="#ffd400"/>
+    <text x="100" y="137" font-size="20" text-anchor="middle" font-family="Black Han Sans" fill="#111827">RAMEN</text></svg>`,
+  kimbap: `<svg viewBox="0 0 200 200">
+    <path d="M100 22c8 0 14 4 18 11l60 112c8 15-2 33-19 33H41c-17 0-27-18-19-33L82 33c4-7 10-11 18-11z" fill="#fff" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M30 128h140l8 17c8 15-2 33-19 33H41c-17 0-27-18-19-33z" fill="#1f2937"/>
+    <circle cx="80" cy="100" r="4" fill="#111827"/><circle cx="118" cy="88" r="4" fill="#111827"/><circle cx="100" cy="70" r="4" fill="#111827"/>
+    <rect x="86" y="140" width="28" height="24" rx="4" fill="#ffd400"/></svg>`,
+  drink: `<svg viewBox="0 0 200 200">
+    <rect x="80" y="14" width="40" height="22" rx="5" fill="#ef4444" stroke="#111827" stroke-width="5"/>
+    <path d="M84 36h32v18c0 8 26 18 26 40v80c0 7-5 12-12 12H70c-7 0-12-5-12-12V94c0-22 26-32 26-40z" fill="#bfdbfe" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+    <rect x="58" y="104" width="84" height="48" fill="#1d4ed8"/>
+    <text x="100" y="136" font-size="22" text-anchor="middle" font-family="Black Han Sans" fill="#fff">DRINK</text>
+    <path d="M70 160h60" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".6"/></svg>`,
+  snack: `<svg viewBox="0 0 200 200">
+    <path d="M44 30l10-8 10 8 10-8 10 8 10-8 10 8 10-8 10 8 10-8 10 8 10-8v22c6 30 6 90 0 118v22l-10 8-10-8-10 8-10-8-10 8-10-8-10 8-10-8-10 8-10-8-10 8V170c-6-28-6-88 0-118z" fill="#f97316" stroke="#111827" stroke-width="6" stroke-linejoin="round"/>
+    <ellipse cx="100" cy="104" rx="42" ry="34" fill="#ffd400"/>
+    <text x="100" y="114" font-size="26" text-anchor="middle" font-family="Black Han Sans" fill="#111827">SNACK</text>
+    <circle cx="68" cy="152" r="9" fill="#fde68a"/><circle cx="96" cy="160" r="7" fill="#fde68a"/><circle cx="130" cy="150" r="10" fill="#fde68a"/></svg>`,
+};
+
+/* ── 데이터 계산 ── */
+const won = n => n.toLocaleString('ko-KR') + '원';
+const items = CONFIG.items;
+const totalWas = items.reduce((s, it) => s + it.was, 0);
+const totalNow = CONFIG.price * items.length;
+const saved = totalWas - totalNow;
+const savedPct = Math.round(saved / totalWas * 100);
+
+/* ── DOM 채우기 ── */
+document.getElementById('rlines').innerHTML = items.map(it =>
+  `<div class="rline"><span>${it.name}</span><span>${won(it.was)}</span></div>`).join('');
+
+document.getElementById('cards').innerHTML = items.map(it => {
+  const pct = Math.round((it.was - CONFIG.price) / it.was * 100);
+  return `<div class="card">
+    <div class="badge"><span class="p hl">${pct}%</span><span class="s">할인</span></div>
+    <div class="icon">${ICONS[it.icon] || ICONS.snack}</div>
+    <p class="name hl">${it.name}</p>
+    <p class="was">편의점 ${won(it.was)}<span class="strike"></span></p>
+    <p class="now hl">${CONFIG.price.toLocaleString('ko-KR')}<small>원</small></p>
+  </div>`;
+}).join('');
+
+document.getElementById('s4q').innerHTML = `${items.length}개 다 사면 <b>얼마?</b>`;
+document.getElementById('savep').textContent = `무려 ${savedPct}% 저렴`;
+document.getElementById('info').innerHTML = [CONFIG.location, CONFIG.hours].filter(Boolean).join('<br>');
+
+const title = document.getElementById('s2title');
+title.innerHTML = [...title.textContent].map(c => `<span>${c}</span>`).join('');
+
+/* 떠다니는 장식 동전 */
+const stage = document.getElementById('stage');
+['s3', 's4'].forEach(id => {
+  const sc = document.getElementById(id);
+  for (let i = 0; i < 6; i++) {
+    const c = document.createElement('div');
+    const size = 70 + (i * 37) % 90;
+    c.className = 'coin deco';
+    Object.assign(c.style, {
+      width: size + 'px', height: size + 'px', fontSize: size * .28 + 'px', opacity: .5,
+      left: (i * 173 + 40) % 1000 + 'px', top: (i * 311 + 120) % 1800 + 'px',
+    });
+    c.textContent = '1,000';
+    sc.prepend(c);
+  }
+});
+
+/* ── 화면 맞춤 ── */
+function fit() {
+  const s = Math.min(innerWidth / 1080, innerHeight / 1920);
+  stage.style.transform = `scale(${s}) translate(-50%,-50%)`;
+}
+addEventListener('resize', fit); fit();
+
+/* ════════════════ 타임라인 ════════════════ */
+function counter(tl, el, from, to, dur, pos) {
+  const o = { v: from };
+  tl.to(o, { v: to, duration: dur, ease: 'power2.out',
+    onUpdate: () => el.textContent = won(Math.round(o.v / 100) * 100) }, pos);
+}
+function show(tl, id, pos) { tl.set('#' + id, { autoAlpha: 1 }, pos); }
+function hide(tl, id, pos) { tl.set('#' + id, { autoAlpha: 0 }, pos); }
+function flash(tl, pos) { tl.fromTo('#flash', { opacity: .9 }, { opacity: 0, duration: .35, ease: 'power1.out', immediateRender: false }, pos); }
+
+function build() {
+  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power3.out' } });
+
+  /* S1 — 영수증 (0 ~ 4.2s) */
+  show(tl, 's1', 0);
+  tl.from('#s1 .q', { y: -60, opacity: 0, duration: .6 }, 0.1)
+    .from('.receipt', { y: 900, rotation: -6, duration: .8, ease: 'back.out(1.2)' }, 0.3)
+    .from('.rline', { x: -40, opacity: 0, stagger: .18, duration: .35 }, 0.9)
+    .addLabel('total', 0.9 + items.length * .18 + .2);
+  counter(tl, document.getElementById('rtotal'), 0, totalWas, 1.0, 'total');
+  tl.to('.receipt', { x: 14, duration: .05, repeat: 7, yoyo: true, ease: 'none' }, 'total+=1')
+    .from('#s1 .ouch', { scale: 2.4, opacity: 0, duration: .45, ease: 'back.out(2)' }, 'total+=1')
+    .addLabel('s2', 'total+=2.1');
+
+  /* S2 — 로고 리빌 */
+  flash(tl, 's2'); hide(tl, 's1', 's2'); show(tl, 's2', 's2');
+  tl.from('#s2 .wait', { y: -80, opacity: 0, duration: .5 }, 's2')
+    .from('#s2 .bigcoin', { y: -1400, rotationY: 720, duration: 1.1, ease: 'bounce.out' }, 's2+=0.3')
+    .from('#s2 .uni', { opacity: 0, letterSpacing: '60px', duration: .6 }, 's2+=1.3')
+    .from('#s2 .title span', { y: 200, scale: .3, opacity: 0, stagger: .09, duration: .5, ease: 'back.out(2.5)' }, 's2+=1.45')
+    .from('#s2 .bar', { scaleX: 0, duration: .5 }, 's2+=2.0')
+    .from('#s2 .tag', { y: 40, opacity: 0, duration: .5 }, 's2+=2.2')
+    .to('#s2 .bigcoin', { rotationY: 360, duration: 1.2, ease: 'power2.inOut' }, 's2+=2.3')
+    .addLabel('s3', 's2+=3.9');
+
+  /* S3 — 상품 카드 */
+  flash(tl, 's3'); hide(tl, 's2', 's3'); show(tl, 's3', 's3');
+  tl.from('#s3 .head .k', { y: -40, opacity: 0, duration: .5 }, 's3')
+    .from('#s3 .head .h', { scale: .4, opacity: 0, duration: .6, ease: 'back.out(2)' }, 's3+=0.15')
+    .from('#s3 .deco', { scale: 0, stagger: .05, duration: .5, ease: 'back.out(2)' }, 's3+=0.2')
+    .to('#s3 .deco', { y: '-=80', rotation: 25, duration: 4, ease: 'sine.inOut', yoyo: true, repeat: 2 }, 's3+=0.7');
+
+  const cards = gsap.utils.toArray('.card');
+  const per = 2.3;
+  cards.forEach((card, i) => {
+    const t = tl.labels.s3 + 0.6 + i * per;
+    const q = s => card.querySelector(s);
+    tl.set(card, { autoAlpha: 1 }, t)
+      .fromTo(card, { x: 1100, rotation: 8 }, { x: 0, rotation: 0, duration: .55, ease: 'back.out(1.1)' }, t)
+      .from(q('.icon'), { scale: .5, rotation: -15, duration: .6, ease: 'back.out(2)' }, t + .2)
+      .from(q('.name'), { y: 30, opacity: 0, duration: .35 }, t + .3)
+      .from(q('.was'), { opacity: 0, duration: .3 }, t + .45)
+      .to(q('.strike'), { scaleX: 1, duration: .3, ease: 'power2.in' }, t + .7)
+      .from(q('.now'), { scale: 3, opacity: 0, rotation: -12, duration: .4, ease: 'back.out(2.2)' }, t + .95)
+      .from(q('.badge'), { scale: 0, rotation: -200, duration: .5, ease: 'back.out(2)' }, t + 1.15);
+    if (q('.steam')) tl.fromTo(card.querySelectorAll('.steam'), { y: 8, opacity: 0 }, { y: -6, opacity: 1, stagger: .12, duration: .6, repeat: 1, yoyo: true, immediateRender: false }, t + .4);
+    if (i < cards.length - 1) tl.to(card, { x: -1100, rotation: -8, duration: .45, ease: 'power3.in' }, t + (per - .25));
+  });
+  tl.addLabel('s4', `s3+=${0.6 + cards.length * per + .2}`);
+
+  /* S4 — 비교 */
+  flash(tl, 's4'); hide(tl, 's3', 's4'); show(tl, 's4', 's4');
+  tl.from('#s4q', { y: -60, opacity: 0, duration: .5 }, 's4')
+    .from('#s4 .deco', { scale: 0, stagger: .05, duration: .5, ease: 'back.out(2)' }, 's4')
+    .from('.row', { x: -80, opacity: 0, stagger: .15, duration: .45 }, 's4+=0.3')
+    .to('#r1 .fill', { scaleX: 1, duration: 1.0, ease: 'power2.out' }, 's4+=0.6')
+    .to('#r2 .fill', { scaleX: totalNow / totalWas, duration: 1.0, ease: 'power2.out' }, 's4+=0.9');
+  counter(tl, document.getElementById('r1v'), 0, totalWas, 1.0, 's4+=0.6');
+  counter(tl, document.getElementById('r2v'), 0, totalNow, 1.0, 's4+=0.9');
+  tl.from('#s4 .save', { scale: .6, opacity: 0, duration: .5, ease: 'back.out(2)' }, 's4+=1.8');
+  counter(tl, document.getElementById('savev'), 0, saved, .8, 's4+=1.9');
+  tl.from('#savep', { scale: 0, rotation: -10, duration: .45, ease: 'back.out(2.5)' }, 's4+=2.6')
+    .addLabel('s5', 's4+=4.1');
+
+  /* S5 — CTA */
+  flash(tl, 's5'); hide(tl, 's4', 's5'); show(tl, 's5', 's5');
+  tl.fromTo('#s5 .rays', { rotation: 0 }, { rotation: 40, duration: 6, ease: 'none' }, 's5')
+    .from('#s5 .l1', { y: -50, opacity: 0, duration: .5 }, 's5+=0.1')
+    .from('#s5 .l2', { scale: .5, opacity: 0, duration: .55, ease: 'back.out(2)' }, 's5+=0.35')
+    .from('#s5 .logo', { y: 600, rotation: 6, duration: .7, ease: 'back.out(1.3)' }, 's5+=0.8')
+    .from('#s5 .info', { opacity: 0, y: 30, duration: .5 }, 's5+=1.4')
+    .from('#s5 .cta', { scale: 0, duration: .5, ease: 'back.out(2.5)' }, 's5+=1.6')
+    .to('#s5 .cta', { scale: 1.08, duration: .35, repeat: 5, yoyo: true, ease: 'sine.inOut' }, 's5+=2.2')
+    .to('#stage .scene#s5 .wrap', { opacity: 0, duration: .5 }, 's5+=5.4')
+    .set('#s5', { autoAlpha: 0 }, 's5+=5.9');
+
+  return tl;
+}
+
+/* ── 시작 & 컨트롤 ── */
+const RENDER = new URLSearchParams(location.search).has('render');
+if (RENDER) document.body.classList.add('render');
+
+document.fonts.ready.then(() => {
+  const tl = build();
+  window.__tl = tl;
+  window.__duration = tl.duration();
+  if (RENDER) { tl.pause(0); window.__ready = true; return; }
+
+  const btn = document.getElementById('btnPlay');
+  const bar = document.querySelector('#prog i');
+  const toggle = () => { tl.paused(!tl.paused()); btn.textContent = tl.paused() ? '▶' : '❚❚'; };
+  btn.onclick = toggle;
+  stage.onclick = toggle;
+  document.getElementById('btnRe').onclick = () => { tl.restart(); btn.textContent = '❚❚'; };
+  document.getElementById('prog').onclick = e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    tl.progress((e.clientX - r.left) / r.width);
+  };
+  addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
+  gsap.ticker.add(() => { bar.style.width = (tl.progress() * 100) + '%'; });
+});
+</script>
+</body>
+</html>

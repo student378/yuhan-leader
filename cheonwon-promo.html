@@ -68,7 +68,8 @@ body{background:var(--page);overflow:hidden;font-family:'Noto Sans KR','Apple SD
 #s1 .h{top:250px;font-size:132px;line-height:1.08;color:var(--royal)}
 #s1 .grid{position:absolute;left:70px;top:600px;width:940px;height:900px}
 .tile{position:absolute;width:460px;height:440px;display:flex;align-items:center;justify-content:center}
-.tile .prod{position:relative;width:320px}
+.tile .prod{position:relative;width:340px;height:330px;display:flex;align-items:center;justify-content:center}
+.tile .prod img{width:auto;max-width:100%;max-height:100%}
 .tile .tag{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);white-space:nowrap;
   background:#fff;color:var(--ink);font-size:44px;font-weight:900;padding:12px 30px;border-radius:999px;box-shadow:0 12px 30px rgba(11,47,152,.18)}
 #s1 .sum{top:1560px}
@@ -96,6 +97,7 @@ body{background:var(--page);overflow:hidden;font-family:'Noto Sans KR','Apple SD
 #s3 .title{top:380px;font-size:270px;line-height:1;color:var(--royal)}
 #s3 .title span{display:inline-block}
 #s3 .uni{top:690px;font-size:60px;font-weight:900;color:var(--ink);letter-spacing:.35em;padding-left:.35em}
+#s3 .prod img{width:auto;max-width:100%;max-height:360px;margin:0 auto}
 #s3 .p1{left:20px;top:1330px;width:300px}
 #s3 .p2{left:280px;top:1200px;width:260px}
 #s3 .p3{left:540px;top:1230px;width:270px}
@@ -107,16 +109,27 @@ body{background:var(--page);overflow:hidden;font-family:'Noto Sans KR','Apple SD
 #s4 .head{top:150px}
 #s4 .head .t{margin-top:22px;font-size:110px;color:var(--royal);line-height:1}
 .item{position:absolute;left:0;right:0;top:440px;height:1300px;opacity:0;visibility:hidden}
-.item .prod{left:50%;top:40px;width:640px;margin-left:-320px}
-.item .ptxt{position:absolute;left:0;right:0;top:820px;text-align:center}
-.item .name{font-size:100px;color:var(--ink);line-height:1.1}
+.item .prod{left:50%;top:30px;width:680px;height:680px;margin-left:-340px;display:flex;align-items:center;justify-content:center}
+.item .prod img{width:auto;max-width:100%;max-height:100%}
+.item .ptxt{position:absolute;left:0;right:0;top:760px;text-align:center}
+.item .cat{margin-bottom:22px}
+.item .cat .chip{font-size:40px;padding:12px 30px}
+.item .name{font-size:84px;color:var(--ink);line-height:1.1;white-space:nowrap}
 .item .was{margin-top:30px;font-size:66px;font-weight:900;color:#5b6b95}
 .item .now{margin-top:30px}
 .item .now .chip{font-size:56px;padding:18px 44px}
 .item .idx{position:absolute;left:90px;top:0;font-size:130px;color:var(--royal);opacity:.18}
-#chicken .card{position:absolute;left:50%;top:40px;width:640px;height:640px;margin-left:-320px;border-radius:120px;background:#fff;box-shadow:0 30px 60px rgba(11,47,152,.2);display:flex;align-items:center;justify-content:center}
-#chicken .card svg{width:470px;height:470px}
-#chicken .flag{position:absolute;left:50%;top:-10px;transform:translateX(-50%) rotate(-4deg)}
+#lineup .lt{position:absolute;left:0;right:0;top:20px;text-align:center;font-size:96px;color:var(--ink)}
+#lineup .lab{position:absolute;left:0;right:0;text-align:center}
+#lineup .lab .chip{font-size:40px;padding:12px 32px}
+.lane{position:absolute;left:0;right:0;height:260px;overflow:hidden}
+.lane .track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:40px;white-space:nowrap}
+.lane img{height:230px;width:auto;flex:none;filter:drop-shadow(0 14px 16px rgba(11,47,152,.25))}
+.lane.tall img{height:280px}
+#lineup .cats{position:absolute;left:70px;right:70px;top:990px;display:flex;flex-wrap:wrap;justify-content:center;gap:18px}
+#lineup .cats .chip{font-size:44px;padding:14px 34px}
+#lineup .rule{position:absolute;left:0;right:0;top:1230px;text-align:center;font-size:54px;font-weight:900;color:var(--ink)}
+#lineup .rule b{color:var(--royal)}
 
 /* ═════ S5: 절약 ═════ */
 #s5 .q{top:200px;font-size:104px;color:#fff;line-height:1.1}
@@ -134,11 +147,12 @@ body{background:var(--page);overflow:hidden;font-family:'Noto Sans KR','Apple SD
 #s5 .save .k{font-size:60px;font-weight:900;color:#cfe0ff}
 #s5 .save .v{font-size:250px;line-height:1.02;color:#fff}
 #s5 .save .v small{font-size:120px}
-#s5 .badge{position:absolute;right:80px;top:1010px;width:250px;height:250px;border-radius:50%;background:var(--red);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(10deg);box-shadow:0 20px 40px rgba(255,68,51,.4)}
-#s5 .badge .p{font-size:100px;line-height:1}
+#s5 .badge{position:absolute;right:60px;top:1300px;width:210px;height:210px;border-radius:50%;background:var(--red);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(10deg);box-shadow:0 20px 40px rgba(255,68,51,.4)}
+#s5 .badge .p{font-size:84px;line-height:1}
 #s5 .badge .s{font-size:36px;font-weight:900}
 #s5 .slogan{top:1530px}
 #s5 .slogan .chip{font-size:60px;padding:24px 50px}
+#s5 .disc{top:1760px;padding:0 70px;font-size:30px;font-weight:700;color:#bcd0ff;line-height:1.5}
 
 /* ═════ S6: 이용 가이드 ═════ */
 #s6 .guide{position:absolute;left:-30px;right:-30px;top:1500px;text-align:center;font-size:360px;line-height:1;color:var(--royal);opacity:.1;white-space:nowrap}
@@ -185,11 +199,11 @@ body.render #stage{box-shadow:none}
 
   <!-- S1 편의점 장바구니 -->
   <section class="scene bg-sky" id="s1">
-    <div class="abs top"><span class="chip chip-white">편의점에서</span></div>
+    <div class="abs top"><span class="chip chip-white">편의점·정상가로</span></div>
     <h2 class="abs h hl"><span class="ln"><span>이 4개 사면</span></span><span class="ln"><span>얼마게요?</span></span></h2>
     <div class="grid" id="grid"></div>
     <div class="abs sum">
-      <p class="k">편의점 정가 합계</p>
+      <p class="k">정상가 합계</p>
       <p class="v hl num" id="sumv">0원</p>
     </div>
   </section>
@@ -201,10 +215,10 @@ body.render #stage{box-shadow:none}
     <p class="abs total hl"><span class="pre">총</span><span class="big num">1,000</span><span class="won">원</span></p>
     <div class="abs subs">
       <span class="chip chip-lemon">4개 합쳐서</span>
-      <span class="chip chip-white">개당 <b id="per"></b>꼴</span>
+      <span class="chip chip-white"><b id="ratio"></b>배 혜택</span>
     </div>
     <div class="row" id="dots"></div>
-    <p class="abs eq">편의점가 대비 <b id="pct1"></b> 저렴</p>
+    <p class="abs eq">정상가 대비 <b id="pct1"></b> 저렴 · 개당 <b id="per"></b>꼴</p>
   </section>
 
   <!-- S3 브랜드 -->
@@ -227,45 +241,30 @@ body.render #stage{box-shadow:none}
       <p class="t hl">4개 골라 총 1,000원</p>
     </div>
     <div id="items"></div>
-    <div class="item" id="chicken">
-      <div class="card">
-        <svg viewBox="0 0 200 200" aria-hidden="true">
-          <defs>
-            <linearGradient id="crust" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7b955"/><stop offset=".55" stop-color="#d9822b"/><stop offset="1" stop-color="#a85a17"/></linearGradient>
-          </defs>
-          <g transform="rotate(-35 100 100)">
-            <rect x="92" y="118" width="22" height="62" rx="10" fill="#fff5e6" stroke="#0b1b4d" stroke-width="5"/>
-            <circle cx="92" cy="182" r="13" fill="#fff5e6" stroke="#0b1b4d" stroke-width="5"/>
-            <circle cx="115" cy="182" r="13" fill="#fff5e6" stroke="#0b1b4d" stroke-width="5"/>
-            <path d="M103 22c38 0 62 28 62 60 0 28-22 44-44 46l-36 0c-22-2-44-18-44-46 0-32 24-60 62-60z" fill="url(#crust)" stroke="#0b1b4d" stroke-width="5"/>
-            <path d="M70 60c6-6 14-9 22-10M128 52c8 3 15 9 18 17M80 96c6 4 14 6 22 6" stroke="#fff3c4" stroke-width="6" stroke-linecap="round" fill="none" opacity=".8"/>
-          </g>
-          <g fill="#1243c9" transform="translate(40 40) scale(.8)">
-            <path d="M0-26v52M-22.5-13l45 26M-22.5 13l45-26" stroke="#1243c9" stroke-width="6" stroke-linecap="round"/>
-          </g>
-        </svg>
-      </div>
-      <span class="flag chip chip-lemon hl" style="font-weight:400">최고가 상품도 OK</span>
-      <div class="ptxt">
-        <p class="name hl">냉동 치킨</p>
-        <p class="was"><span class="num" id="chkPrice"></span>짜리도</p>
-        <p class="now"><span class="chip chip-royal">4개 중 하나로 PICK!</span></p>
-      </div>
+    <div class="item" id="lineup">
+      <p class="lt hl">7개 카테고리 · <span id="cnt"></span>종</p>
+      <p class="lab" style="top:170px"><span class="chip chip-royal">냉동식품 7종</span></p>
+      <div class="lane" style="top:250px"><div class="track" id="laneF"></div></div>
+      <p class="lab" style="top:540px"><span class="chip chip-royal">생활용품 5종</span></p>
+      <div class="lane" style="top:620px;height:300px"><div class="track" id="laneC"></div></div>
+      <div class="cats" id="cats"></div>
+      <p class="rule">서로 다른 <b>4개 카테고리</b>에서 1개씩</p>
     </div>
   </section>
 
   <!-- S5 절약 -->
   <section class="scene bg-royal" id="s5">
     <h2 class="abs q hl"><span class="ln"><span>같은 4개,</span></span><span class="ln"><span>가격 차이는?</span></span></h2>
-    <div class="bar" id="b1"><div class="lab"><span>편의점</span><span class="v num" id="b1v">0원</span></div><div class="track"><div class="fill"></div></div></div>
+    <div class="bar" id="b1"><div class="lab"><span>정상가</span><span class="v num" id="b1v">0원</span></div><div class="track"><div class="fill"></div></div></div>
     <div class="bar" id="b2"><div class="lab"><span>천원매점</span><span class="v num" id="b2v">0원</span></div><div class="track"><div class="fill"></div></div></div>
     <div class="abs save">
-      <p class="k">한 번 PICK할 때마다</p>
+      <p class="k">최고가 조합 PICK하면</p>
       <p class="v hl num" id="savev">0원</p>
       <p class="k">절약</p>
     </div>
     <div class="badge"><span class="p hl" id="pct2"></span><span class="s">DOWN</span></div>
     <div class="abs slogan"><span class="chip chip-lemon">원가 수준 이하의 착한 가격</span></div>
+    <p class="abs disc" id="disc"></p>
   </section>
 
   <!-- S6 이용 가이드 -->
@@ -309,20 +308,25 @@ body.render #stage{box-shadow:none}
 ════════════════════════════════════════════ */
 const CONFIG = {
   total: 1000,                       // 4개 합계 가격
-  items: [                           // 포스터 속 대표 PICK 4종
-    { name: '햇반 스팸김치볶음밥',   price: 3900, img: 'assets/cheonwon/kimchi.webp' },
-    { name: '비비고 갈비탕',         price: 7900, img: 'assets/cheonwon/galbi.webp'  },
-    { name: '까르보불닭볶음면 큰컵', price: 1800, img: 'assets/cheonwon/buldak.webp' },
-    { name: '햇반 컵반 치킨마요덮밥', price: 4800, img: 'assets/cheonwon/cupban.webp' },
+  // 가장 비싼 조합 (카테고리별 최고가 1개씩) — 편의점/정상가 기준
+  items: [
+    { cat: '냉동식품', name: '고메 소바바치킨 양념 순살', price: 8980, img: 'assets/cheonwon/chicken.webp'  },
+    { cat: '레토르트', name: '비비고 갈비탕',             price: 8980, img: 'assets/cheonwon/galbi.webp'    },
+    { cat: '생활용품', name: '랩신 포밍 핸드워시',        price: 6900, img: 'assets/cheonwon/handwash.webp' },
+    { cat: '캔·반찬',  name: '스팸 클래식 200g',          price: 4980, img: 'assets/cheonwon/spam.webp'     },
   ],
-  topItem: { name: '냉동 치킨', price: 9900 },
+  categories: ['냉동식품', '레토르트', '봉지라면', '컵라면', '햇반·컵밥', '캔·반찬', '생활용품'],
+  itemCount: 37,
+  frozen: ['f_shrimp', 'f_jinramen', 'f_kimchi', 'f_mandu_k', 'f_mandu_j', 'f_chicken_g', 'f_chicken_y'],
+  care: ['c_shampoo', 'c_bodywash', 'c_cleansing', 'c_tooth', 'c_handwash'],
   hours: '화·목 13:00~15:00',
   place: '학생회관 3층 4303호',
   notes: ['재료 소진 시 마감', '동일 품목 중복 구매 불가'],
+  disclaimer: '※ 최고가 조합 예시 · 편의점/정상가(할인 전) 합계 기준 · 판매처·시점에 따라 달라질 수 있어요',
   steps: [
     ['01', '신청 QR 접속',     '별도 앱 설치 없이 접속'],
     ['02', '내 정보 입력',     '학과 · 학년 · 학번 · 이름'],
-    ['03', '상품 4개 선택',    '서로 다른 4개 카테고리에서 1개씩'],
+    ['03', '상품 4개 선택',    '7개 중 서로 다른 4개 카테고리에서 1개씩'],
     ['04', '총 1,000원 결제',  '계좌이체 또는 현금'],
     ['05', '상품 받기',        '직접 수령 또는 드리미'],
   ],
@@ -336,6 +340,7 @@ const sum = items.reduce((s, it) => s + it.price, 0);
 const saved = sum - CONFIG.total;
 const pct = Math.floor(saved / sum * 100);
 const per = Math.round(CONFIG.total / items.length);
+const ratio = (sum / CONFIG.total).toFixed(1);
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -348,8 +353,9 @@ $('#grid').innerHTML = items.map((it, i) => `
   </div>`).join('');
 
 $('#wasv').textContent = won(sum);
-$('#per').textContent = won(per);
+$('#ratio').textContent = ratio;
 $('#pct1').textContent = pct + '%';
+$('#per').textContent = won(per);
 $('#pct2').textContent = pct + '%';
 $('#dots').innerHTML = items.map(it => `<div class="dot"><img src="${it.img}" alt=""></div>`).join('');
 
@@ -362,13 +368,18 @@ $('#items').innerHTML = items.map((it, i) => `
     <span class="idx hl">0${i + 1}</span>
     <div class="prod"><img src="${it.img}" alt="${it.name}"></div>
     <div class="ptxt">
+      <p class="cat"><span class="chip chip-white">${it.cat}</span></p>
       <p class="name hl">${it.name}</p>
-      <p class="was">편의점 <span class="strike-wrap num">${won(it.price)}<span class="strike"></span></span></p>
+      <p class="was">정상가 <span class="strike-wrap num">${won(it.price)}<span class="strike"></span></span></p>
       <p class="now"><span class="chip chip-royal">→ 단 ${won(per)}꼴</span></p>
     </div>
   </div>`).join('');
-$('#chkPrice').textContent = won(CONFIG.topItem.price);
-$('#chicken .name').textContent = CONFIG.topItem.name;
+$('#cnt').textContent = CONFIG.itemCount;
+const lane = list => { const h = list.map(k => `<img src="assets/cheonwon/${k}.webp" alt="">`).join(''); return h + h; };
+$('#laneF').innerHTML = lane(CONFIG.frozen);
+$('#laneC').innerHTML = lane(CONFIG.care);
+$('#cats').innerHTML = CONFIG.categories.map(c => `<span class="chip chip-white">${c}</span>`).join('');
+$('#disc').textContent = CONFIG.disclaimer;
 
 $('#steps').innerHTML = CONFIG.steps.map(([n, t, d]) => `
   <div class="step"><span class="n hl">${n}</span><div><p class="tt hl">${t}</p><p class="dd">${d}</p></div></div>`).join('');
@@ -409,7 +420,7 @@ function build() {
   const lines = (sel, at, st = .1) => tl.from(sel, { yPercent: 115, duration: .75, stagger: st }, at);
   const count = (el, to, at, dur = 1.1) => {
     const o = { v: 0 };
-    tl.to(o, { v: to, duration: dur, ease: 'power2.out', onUpdate: () => el.textContent = won(Math.round(o.v / 100) * 100) }, at);
+    tl.to(o, { v: to, duration: dur, ease: 'power2.out', onUpdate: () => el.textContent = won(Math.round(o.v / 10) * 10) }, at);
   };
   // 와이프 전환: at 시점에 덮고, 중간에 장면 교체, 걷힘
   const wipe = (from, to, at) => {
@@ -475,6 +486,7 @@ function build() {
     tl.set(el, { autoAlpha: 1 }, t)
       .from(q('.prod'), { x: 760, rotation: 14, duration: .6 }, t)
       .from(q('.idx'), { opacity: 0, x: -40, duration: .5 }, t + .1)
+      .from(q('.cat'), { y: 30, opacity: 0, duration: .35 }, t + .1)
       .from(q('.name'), { y: 50, opacity: 0, duration: .45 }, t + .18)
       .from(q('.was'), { opacity: 0, duration: .3 }, t + .32)
       .to(q('.strike'), { scaleX: 1, duration: .28, ease: 'power2.in' }, t + .55)
@@ -483,16 +495,17 @@ function build() {
       .set(el, { autoAlpha: 0 }, t + per1 + .02);
   });
   const tc = T + .45 + cards.length * per1;
-  tl.set('#chicken', { autoAlpha: 1 }, tc)
-    .from('#chicken .card', { scale: .3, rotation: -20, opacity: 0, duration: .7, ease: 'back.out(1.8)' }, tc)
-    .from('#chicken .flag', { y: -60, opacity: 0, duration: .5, ease: 'back.out(2)' }, tc + .35)
-    .from('#chicken .name', { y: 50, opacity: 0, duration: .45 }, tc + .3)
-    .from('#chicken .was', { opacity: 0, duration: .35 }, tc + .5)
-    .from('#chicken .now .chip', { scale: 0, duration: .5, ease: 'back.out(2.4)' }, tc + .8)
-    .to('#chicken .card svg', { rotation: 8, duration: .5, yoyo: true, repeat: 3, ease: 'sine.inOut' }, tc + .6);
+  tl.set('#lineup', { autoAlpha: 1 }, tc)
+    .from('#lineup .lt', { y: 50, opacity: 0, duration: .5 }, tc)
+    .from('#lineup .lab', { scale: 0, stagger: .2, duration: .45, ease: 'back.out(2.2)' }, tc + .15)
+    .from('.lane', { opacity: 0, duration: .4, stagger: .2 }, tc + .2)
+    .fromTo('#laneF', { xPercent: 0 }, { xPercent: -50, duration: 9, ease: 'none', immediateRender: false }, tc)
+    .fromTo('#laneC', { xPercent: -50 }, { xPercent: 0, duration: 9, ease: 'none', immediateRender: false }, tc)
+    .from('#cats .chip', { scale: 0, stagger: .07, duration: .4, ease: 'back.out(2.4)' }, tc + .7)
+    .from('#lineup .rule', { y: 30, opacity: 0, duration: .45 }, tc + 1.4);
 
   /* S5 — 절약 비교 */
-  T = wipe('s4', 's5', tc + 2.6);
+  T = wipe('s4', 's5', tc + 3.6);
   lines('#s5 .q .ln > span', T, .12);
   tl.from('.bar', { x: -80, opacity: 0, stagger: .15, duration: .5 }, T + .35)
     .to('#b1 .fill', { scaleX: 1, duration: 1.1, ease: 'power2.out' }, T + .65)
@@ -503,6 +516,7 @@ function build() {
   count($('#savev'), saved, T + 1.8, .9);
   tl.from('#s5 .badge', { scale: 0, rotation: -180, duration: .6, ease: 'back.out(2)' }, T + 2.5)
     .from('#s5 .slogan .chip', { y: 60, opacity: 0, duration: .5 }, T + 2.8)
+    .from('#s5 .disc', { opacity: 0, duration: .5 }, T + 3.0)
     .to('#s5 .slogan .chip', { scale: 1.06, duration: .3, yoyo: true, repeat: 1, ease: 'sine.inOut' }, T + 3.4);
 
   /* S6 — 이용 가이드 + 운영 정보 */

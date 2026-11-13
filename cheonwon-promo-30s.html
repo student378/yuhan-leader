@@ -231,6 +231,11 @@ body.render #ui{display:none}
     <p class="abs meta">화·목 13:00~15:00 · 학생회관 3층 4303호</p>
   </div></section>
 
+  <!-- S7 공식 포스터 -->
+  <section class="scene" id="s7" style="background:#f4f9fd"><div class="cam">
+    <img id="posterimg" src="assets/cheonwon/poster_end.webp" alt="천원매점 공식 포스터" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+  </div></section>
+
   <div id="vig"></div>
   <div id="grain"></div>
 </div>
@@ -393,15 +398,20 @@ function build() {
   /* S6 엔딩 25.4–30.0 */
   cut('s5', 's6', 25.4, 1.06);
   drift('s6', 25.4, 4.6);
-  tl.from('#s6 .kick', { opacity: 0, duration: .4 }, 25.45)
-    .fromTo('#s6 .title', { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: .45, ease: 'power4.out', immediateRender: false }, 25.5)
-    .from('#s6 .uni', { opacity: 0, letterSpacing: '.9em', duration: .7 }, 25.7);
-  lines('#s6 .big .ln>span', 26.0, .12);
-  tl.fromTo('#s6 .cta', { scale: .4, opacity: 0 }, { scale: 1, opacity: 1, duration: .4, ease: 'back.out(1.6)', immediateRender: false }, 26.8)
-    .to('#s6 .cta', { scale: 1.045, duration: .4, repeat: 4, yoyo: true, ease: 'sine.inOut' }, 27.4)
-    .from('#s6 .meta', { opacity: 0, duration: .5 }, 27.1)
-    .to('#s6 .cam', { opacity: 0, duration: .55, ease: 'power1.in' }, 29.35)
-    .set('#s6', { autoAlpha: 0 }, 29.95);
+  tl.from('#s6 .kick', { opacity: 0, duration: .3 }, 25.45)
+    .fromTo('#s6 .title', { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: .4, ease: 'power4.out', immediateRender: false }, 25.5)
+    .from('#s6 .uni', { opacity: 0, letterSpacing: '.9em', duration: .55 }, 25.65);
+  lines('#s6 .big .ln>span', 25.85, .1);
+  tl.fromTo('#s6 .cta', { scale: .4, opacity: 0 }, { scale: 1, opacity: 1, duration: .35, ease: 'back.out(1.6)', immediateRender: false }, 26.3)
+    .to('#s6 .cta', { scale: 1.045, duration: .35, repeat: 2, yoyo: true, ease: 'sine.inOut' }, 26.7)
+    .from('#s6 .meta', { opacity: 0, duration: .4 }, 26.6);
+
+  /* S7 공식 포스터 27.4–30.0 */
+  cut('s6', 's7', 27.4, 1.0);
+  tl.fromTo('#s7 .cam', { opacity: 0, scale: 1.06 }, { opacity: 1, scale: 1, duration: .6, ease: 'expo.out', immediateRender: false }, 27.4)
+    .fromTo('#s7 .cam', { scale: 1 }, { scale: 1.025, duration: 2.0, ease: 'none', immediateRender: false }, 28.0)
+    .to('#s7 .cam', { opacity: 0, duration: .5, ease: 'power1.in' }, 29.45)
+    .set('#s7', { autoAlpha: 0 }, 29.98);
 
   /* 그레인 흔들기 (프레임마다 위치 변경 효과) */
   for (let t = 0; t < 30; t += .1) {

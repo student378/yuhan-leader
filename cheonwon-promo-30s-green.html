@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1b4d">
+<title>천원매점 30초 홍보 모션 (그린)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Jua&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+:root{
+  --navy:#00234e;
+  --navy2:#003871;
+  --royal:#004098;
+  --royal-l:#1a5ab8;
+  --green:#009331;
+  --green-d:#016823;
+  --sky0:#ffffff;
+  --sky1:#f4f9fd;
+  --sky2:#e2eef8;
+  --ink:#00306c;
+  --lemon:#43d96b;
+  --red:#e84d07;
+  --white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#04091f;overflow:hidden;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;-webkit-font-smoothing:antialiased}
+.hl{font-family:'Jua','Black Han Sans','Noto Sans KR',sans-serif;font-weight:400;letter-spacing:-.01em}
+.num{font-variant-numeric:tabular-nums}
+
+#stage{position:absolute;left:50%;top:50%;width:1080px;height:1920px;transform-origin:0 0;overflow:hidden;background:var(--navy);cursor:pointer}
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;overflow:hidden}
+.cam{position:absolute;inset:0;will-change:transform}
+.abs{position:absolute;left:0;right:0;text-align:center}
+.ln{display:block;overflow:hidden;padding:2px 20px}
+.ln>span{display:inline-block}
+
+.bg-dark{background:radial-gradient(130% 80% at 50% 8%,var(--navy2) 0%,var(--navy) 58%,#050d26 100%)}
+.bg-sky{background:radial-gradient(120% 70% at 50% 0%,var(--sky0) 0%,var(--sky1) 48%,var(--sky2) 100%)}
+.bg-royal{background:radial-gradient(120% 75% at 50% 8%,#00a93c 0%,var(--green) 52%,var(--green-d) 100%)}
+
+/* 오버레이: 비네트 + 그레인 */
+#vig{position:absolute;inset:0;pointer-events:none;z-index:40;
+  background:radial-gradient(118% 88% at 50% 42%,transparent 58%,rgba(3,8,26,.38) 100%)}
+#grain{position:absolute;inset:-60px;pointer-events:none;z-index:41;opacity:.055;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>")}
+
+/* 공용 요소 */
+.kicker{display:inline-block;font-size:40px;font-weight:900;letter-spacing:.32em;padding-left:.32em}
+.k-light{color:#7fb4e8}
+.k-dark{color:#4d79b3}
+.chip{display:inline-flex;align-items:center;padding:16px 40px;border-radius:999px;font-weight:900;font-size:46px}
+.chip-royal{background:var(--green);color:#fff}
+.chip-lemon{background:var(--lemon);color:var(--ink)}
+.chip-line{border:4px solid rgba(255,255,255,.4);color:#fff}
+.stamp{display:inline-block;padding:20px 52px;border-radius:26px;color:#fff;font-size:88px;transform:rotate(-6deg);background:var(--red);box-shadow:0 16px 36px rgba(255,68,51,.38)}
+.prod{position:absolute;filter:drop-shadow(0 30px 34px rgba(3,10,34,.45))}
+.prod img{display:block;width:100%;height:auto}
+.strike-wrap{position:relative;display:inline-block}
+.strike{position:absolute;left:-14px;right:-14px;top:53%;height:11px;border-radius:6px;background:var(--red);transform:scaleX(0);transform-origin:left center}
+.rule{position:absolute;left:90px;right:90px;height:5px;background:#43d96b;transform:scaleX(0)}
+
+/* 차양 스트립 */
+.awning{position:absolute;left:0;right:0;top:0;height:96px;z-index:3}
+.awning .bar{position:absolute;left:0;right:0;top:0;height:56px;background:
+  repeating-linear-gradient(90deg,var(--royal) 0 108px,var(--green) 108px 216px)}
+.awning .sc{position:absolute;left:0;right:0;top:34px;display:flex}
+.awning .sc i{flex:1;height:62px;border-radius:0 0 999px 999px}
+.awning .sc i:nth-child(odd){background:#012971}
+.awning .sc i:nth-child(even){background:#016823}
+
+/* ═════ S1 훅 ═════ */
+#s1 .kick{top:210px}
+#s1 .h{top:290px;font-size:128px;line-height:1.1;color:#fff}
+#s1 .h em{font-style:normal;color:#55e383}
+#s1 .grid{position:absolute;left:90px;top:620px;width:900px;height:860px}
+.cell{position:absolute;width:430px;height:410px;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden}
+.cell .prod{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
+.cell .prod img{width:auto;max-width:100%;max-height:100%}
+.cell .tag{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fff;color:var(--ink);font-size:42px;font-weight:900;padding:10px 28px;border-radius:14px}
+#s1 .sum{top:1560px}
+#s1 .sum .k{font-size:46px;font-weight:900;color:#7fb4e8}
+#s1 .sum .v{font-size:190px;line-height:1.05;color:#fff}
+
+/* ═════ S2 반전 ═════ */
+#s2 .kick{top:250px}
+#s2 .was{top:340px;font-size:104px;color:rgba(255,255,255,.42)}
+#s2 .tot{top:540px;color:#fff;line-height:.95;white-space:nowrap}
+#s2 .tot .pre{font-size:100px;color:#a8cdf0;vertical-align:super}
+#s2 .tot .big{font-size:300px;color:var(--lemon)}
+#s2 .tot .won{font-size:150px;color:var(--lemon)}
+#s2 .line{top:980px}
+#s2 .per{top:1160px;color:#fff;line-height:1.02;white-space:nowrap}
+#s2 .per .a{font-size:92px}
+#s2 .per .b{font-size:210px;color:var(--lemon)}
+#s2 .per .c{font-size:120px;color:var(--lemon)}
+#s2 .sub{top:1480px;font-size:52px;font-weight:900;color:#7fb4e8}
+#s2 .sub b{color:#fff}
+
+/* ═════ S3 상품 연타 ═════ */
+#s3 .head{top:170px}
+#s3 .head .t{font-size:96px;color:var(--ink);line-height:1.05;margin-top:16px}
+#s3 .head .t em{font-style:normal;color:var(--royal)}
+.it{position:absolute;inset:0;opacity:0;visibility:hidden}
+.it .prod{left:50%;top:430px;width:700px;height:700px;margin-left:-350px;display:flex;align-items:center;justify-content:center}
+.it .prod img{width:auto;max-width:100%;max-height:100%}
+.it .cat{position:absolute;top:400px;left:80px;font-size:44px;font-weight:900;color:var(--royal);letter-spacing:.2em;writing-mode:vertical-rl;opacity:.75}
+.it .idx{position:absolute;top:360px;right:70px;font-size:150px;color:var(--royal);opacity:.16}
+.it .name{position:absolute;left:0;right:0;top:1190px;text-align:center;font-size:88px;color:var(--ink);white-space:nowrap}
+.it .was{position:absolute;left:0;right:0;top:1330px;text-align:center;font-size:60px;font-weight:900;color:#5b6b95}
+.it .st{position:absolute;left:0;right:0;top:1440px;text-align:center}
+
+/* ═════ S4 250원 포커스 ═════ */
+#s4 .kick{top:240px}
+#s4 .l1{top:330px;font-size:150px;color:#fff;line-height:1.05}
+#s4 .l2{top:530px;color:#fff;line-height:.95;white-space:nowrap}
+#s4 .l2 .b{font-size:340px}
+#s4 .l2 .w{font-size:170px}
+#s4 .coinrow{position:absolute;left:0;right:0;top:1010px;display:flex;justify-content:center;gap:34px}
+#s4 .coin{width:150px;height:150px;border-radius:50%;background:#fff;
+  box-shadow:inset 0 0 0 10px rgba(1,104,35,.25),0 16px 30px rgba(0,40,10,.3);
+  display:flex;align-items:center;justify-content:center;color:var(--green-d);font-weight:900;font-size:44px}
+#s4 .bars{position:absolute;left:110px;right:110px;top:1270px}
+#s4 .brow{margin-bottom:46px}
+#s4 .blab{display:flex;justify-content:space-between;font-size:46px;font-weight:900;color:#c9f3d6;margin-bottom:14px}
+#s4 .blab .v{color:#fff}
+#s4 .btrack{height:78px;border-radius:39px;background:rgba(255,255,255,.1);overflow:hidden}
+#s4 .bfill{height:100%;border-radius:39px;transform:scaleX(0);transform-origin:left center}
+#s4 .b1 .bfill{background:#5a8f6e}
+#s4 .b2 .bfill{background:#fff;min-width:78px}
+#s4 .b2 .blab,#s4 .b2 .blab .v{color:#fff}
+#s4 .down{position:absolute;right:110px;top:1565px;width:220px;height:220px;border-radius:50%;background:var(--red);color:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(8deg);box-shadow:0 18px 44px rgba(255,68,51,.45);z-index:2}
+#s4 .down .p{font-size:88px;line-height:1}
+#s4 .down .s{font-size:34px;font-weight:900}
+
+/* ═════ S5 초간단 이용법 ═════ */
+#s5 .kick{top:300px}
+#s5 .t{top:390px;font-size:140px;color:var(--ink);line-height:1.05}
+#s5 .t em{font-style:normal;color:var(--royal)}
+#s5 .flow{position:absolute;left:0;right:0;top:760px;display:flex;align-items:center;justify-content:center;gap:26px}
+#s5 .fstep{width:260px;height:300px;border-radius:40px;background:#fff;box-shadow:0 22px 48px rgba(18,67,201,.16);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#s5 .fstep .ic{font-size:40px;font-weight:900;color:#fff;background:var(--green);width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#s5 .fstep .tt{font-size:52px;color:var(--ink);line-height:1.1;text-align:center}
+#s5 .arrow{font-size:60px;color:var(--royal);font-weight:900}
+#s5 .meta{top:1200px;font-size:60px;font-weight:900;color:var(--ink);line-height:1.75}
+#s5 .meta b{color:var(--royal)}
+#s5 .note{top:1500px;font-size:40px;font-weight:700;color:#5b6b95}
+
+/* ═════ S6 엔딩 ═════ */
+#s6 .kick{top:330px}
+#s6 .logoimg{position:absolute;left:190px;top:420px;width:700px}
+#s6 .logoimg img{display:block;width:100%}
+#s6 .wordimg{position:absolute;left:265px;top:800px;width:550px}
+#s6 .wordimg img{display:block;width:100%}
+#s6 .uni{top:960px;font-size:58px;font-weight:900;color:var(--ink);letter-spacing:.34em;padding-left:.34em}
+#s6 .big{top:1080px;font-size:116px;color:var(--ink);line-height:1.22}
+#s6 .big em{font-style:normal;color:var(--green)}
+#s6 .cta{position:absolute;left:140px;right:140px;top:1420px;height:168px;border-radius:84px;background:var(--royal);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:66px;box-shadow:0 26px 54px rgba(18,67,201,.4);white-space:nowrap}
+#s6 .meta{top:1660px;font-size:42px;font-weight:900;color:#3a4a7a}
+
+/* 컨트롤 */
+#ui{position:fixed;left:0;right:0;bottom:0;padding:12px 16px 16px;display:flex;align-items:center;gap:12px;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:13px;z-index:50}
+#ui button{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:16px;cursor:pointer}
+#prog{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.2);cursor:pointer;position:relative}
+#prog i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:3px;background:var(--lemon)}
+body.render #ui{display:none}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- S1 훅 -->
+  <section class="scene bg-dark" id="s1"><div class="cam">
+    <p class="abs kick"><span class="kicker k-light">CONVENIENCE STORE</span></p>
+    <h2 class="abs h hl"><span class="ln"><span>편의점에서 이 4개,</span></span><span class="ln"><span><em>얼마</em>일까요?</span></span></h2>
+    <div class="grid" id="grid"></div>
+    <div class="abs sum">
+      <p class="k">정가 합계</p>
+      <p class="v hl num" id="sumv">0원</p>
+    </div>
+  </div></section>
+
+  <!-- S2 반전 -->
+  <section class="scene bg-dark" id="s2"><div class="cam">
+    <p class="abs kick"><span class="kicker k-light">유한대학교 천원매점</span></p>
+    <p class="abs was hl num"><span class="strike-wrap"><span id="wasv"></span><span class="strike"></span></span></p>
+    <p class="abs tot hl"><span class="pre">총</span> <span class="big num">1,000</span><span class="won">원</span></p>
+    <div class="rule" style="top:940px"></div>
+    <p class="abs line"><span class="chip chip-line">서로 다른 4개 카테고리 · 1개씩</span></p>
+    <p class="abs per hl"><span class="a">개당</span> <span class="b num">250</span><span class="c">원</span></p>
+    <p class="abs sub">뭘 골라도, <b>커피 반 잔 값</b></p>
+  </div></section>
+
+  <!-- S3 상품 연타 -->
+  <section class="scene bg-sky" id="s3"><div class="cam">
+    <div class="awning"><div class="bar"></div><div class="sc"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs head">
+      <span class="kicker k-dark">CHEONWON PICK</span>
+      <p class="t hl">뭘 골라도 <em>250원꼴</em></p>
+    </div>
+    <div id="items"></div>
+  </div></section>
+
+  <!-- S4 250원 포커스 -->
+  <section class="scene bg-royal" id="s4"><div class="cam">
+    <p class="abs kick"><span class="kicker" style="color:#c9f3d6">BEST VALUE</span></p>
+    <h2 class="abs l1 hl">뭘 골라도</h2>
+    <p class="abs l2 hl"><span class="b num">250</span><span class="w">원</span></p>
+    <div class="coinrow" id="coins"></div>
+    <div class="bars">
+      <div class="brow b1"><div class="blab"><span>편의점 정가</span><span class="v num" id="c1">0원</span></div><div class="btrack"><div class="bfill"></div></div></div>
+      <div class="brow b2"><div class="blab"><span>천원매점</span><span class="v num" id="c2">0원</span></div><div class="btrack"><div class="bfill"></div></div></div>
+    </div>
+    <div class="down"><span class="p hl" id="pctv"></span><span class="s">DOWN</span></div>
+  </div></section>
+
+  <!-- S5 초간단 이용법 -->
+  <section class="scene bg-sky" id="s5"><div class="cam">
+    <div class="awning"><div class="bar"></div><div class="sc"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <p class="abs kick"><span class="kicker k-dark">HOW TO</span></p>
+    <h2 class="abs t hl">딱 <em>3초면</em> 끝</h2>
+    <div class="flow">
+      <div class="fstep"><span class="ic">1</span><span class="tt hl">QR 접속</span></div>
+      <span class="arrow">→</span>
+      <div class="fstep"><span class="ic">2</span><span class="tt hl">4개 선택</span></div>
+      <span class="arrow">→</span>
+      <div class="fstep"><span class="ic">3</span><span class="tt hl">1,000원<br>결제</span></div>
+    </div>
+    <p class="abs meta"><b>화 · 목</b> 13:00 ~ 15:00<br><b>학생회관 3층</b> 4303호</p>
+    <p class="abs note">재료 소진 시 마감 · 동일 품목 중복 구매 불가</p>
+  </div></section>
+
+  <!-- S6 엔딩 -->
+  <section class="scene bg-sky" id="s6"><div class="cam">
+    <div class="awning"><div class="bar"></div><div class="sc"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <p class="abs kick"><span class="kicker k-dark">경기도 대학생 천원매점</span></p>
+    <div class="logoimg"><img src="assets/cheonwon/logo_green.webp" alt=""></div>
+    <div class="wordimg"><img src="assets/cheonwon/wordmark_green.webp" alt=""></div>
+    <p class="abs big hl"><span class="ln"><span>4개 골라 <em>1,000원</em></span></span><span class="ln"><span>개당 <em>250원</em></span></span></p>
+    <div class="cta hl">신청 QR 찍고 바로 PICK!</div>
+    <p class="abs meta">화·목 13:00~15:00 · 학생회관 3층 4303호</p>
+  </div></section>
+
+  <!-- S7 공식 포스터 -->
+  <section class="scene" id="s7" style="background:#f4f9fd"><div class="cam">
+    <img id="posterimg" src="assets/cheonwon/poster_end.webp" alt="천원매점 공식 포스터" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+  </div></section>
+
+  <div id="vig"></div>
+  <div id="grain"></div>
+</div>
+
+<div id="ui">
+  <button id="btnPlay">❚❚</button>
+  <button id="btnRe">↺</button>
+  <div id="prog"><i></i></div>
+</div>
+
+<script>
+/* ✏️ 내용 수정은 여기 */
+const CONFIG = {
+  total: 1000,
+  items: [
+    { cat: '냉동식품', name: '고메 소바바치킨 양념허니', price: 8980, img: 'assets/cheonwon/chicken.webp'  },
+    { cat: '레토르트', name: '비비고 갈비탕',           price: 8980, img: 'assets/cheonwon/galbi.webp'    },
+    { cat: '생활용품', name: '랩신 포밍 핸드워시',      price: 6900, img: 'assets/cheonwon/handwash.webp' },
+    { cat: '캔·반찬',  name: '스팸 클래식 200g',        price: 4980, img: 'assets/cheonwon/spam.webp'     },
+  ],
+};
+const fmt = n => n.toLocaleString('ko-KR');
+const won = n => fmt(n) + '원';
+const items = CONFIG.items;
+const sum = items.reduce((s, it) => s + it.price, 0);
+const pct = Math.floor((sum - CONFIG.total) / sum * 100);
+const per = Math.round(CONFIG.total / items.length);
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+const POS = [[0, 0], [470, 0], [0, 440], [470, 440]];
+$('#grid').innerHTML = items.map((it, i) => `
+  <div class="cell" style="left:${POS[i][0]}px;top:${POS[i][1]}px">
+    <div class="prod"><img src="${it.img}" alt=""></div>
+    <span class="tag num">${won(it.price)}</span>
+  </div>`).join('');
+$('#wasv').textContent = won(sum);
+$('#pctv').textContent = pct + '%';
+$('#items').innerHTML = items.map((it, i) => `
+  <div class="it">
+    <span class="cat">${it.cat}</span>
+    <span class="idx hl">0${i + 1}</span>
+    <div class="prod"><img src="${it.img}" alt=""></div>
+    <p class="name hl">${it.name}</p>
+    <p class="was">정가 <span class="strike-wrap num">${won(it.price)}<span class="strike"></span></span></p>
+    <p class="st"><span class="stamp hl num">${per}원꼴</span></p>
+  </div>`).join('');
+$('#coins').innerHTML = items.map(() => `<div class="coin hl num">250</div>`).join('');
+
+const stage = $('#stage');
+function fit() {
+  const s = Math.min(innerWidth / 1080, innerHeight / 1920);
+  stage.style.transform = `scale(${s}) translate(-50%,-50%)`;
+}
+addEventListener('resize', fit); fit();
+
+/* ════════ 타임라인 (120BPM, 비트=0.5s) ════════ */
+function build() {
+  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'expo.out', duration: .6 } });
+  const lines = (sel, at, st = .09) => tl.from(sel, { yPercent: 118, duration: .7, stagger: st, ease: 'power4.out' }, at);
+  const count = (el, to, at, dur = 1.0, snap = 10) => {
+    const o = { v: 0 };
+    tl.to(o, { v: to, duration: dur, ease: 'power3.out',
+      onUpdate: () => el.textContent = won(Math.round(o.v / snap) * snap) }, at);
+  };
+  // 러버스탬프: 크게 들어와 쾅 찍힘
+  const stamp = (sel, at, rot = -6) => tl.fromTo(sel,
+    { scale: 2.1, rotation: rot - 10, opacity: 0 },
+    { scale: 1, rotation: rot, opacity: 1, duration: .32, ease: 'power4.in', immediateRender: false }, at)
+    .to('#stage', { x: 7, duration: .04, repeat: 3, yoyo: true, ease: 'none' }, at + .3)
+    .set('#stage', { x: 0 }, at + .48);
+  // 하드컷: 들어오는 장면 살짝 펀치인
+  const cut = (from, to, at, punch = 1.05) => {
+    tl.set('#' + from, { autoAlpha: 0 }, at)
+      .set('#' + to, { autoAlpha: 1 }, at)
+      .fromTo(`#${to} .cam`, { scale: punch }, { scale: 1, duration: .7, ease: 'expo.out', immediateRender: false }, at);
+  };
+  // 씬 내내 아주 느린 카메라 드리프트
+  const drift = (id, at, dur, s0 = 1, s1 = 1.035) =>
+    tl.fromTo(`#${id} .cam`, { scale: s0 }, { scale: s1, duration: dur, ease: 'none', immediateRender: false }, at);
+
+  /* S1 훅 0–4.0 */
+  tl.set('#s1', { autoAlpha: 1 }, 0);
+  drift('s1', 0, 4);
+  tl.from('#s1 .kick', { opacity: 0, letterSpacing: '.9em', duration: .8 }, .05);
+  lines('#s1 .h .ln>span', .1);
+  items.forEach((_, i) => {
+    const t = .7 + i * .5; // 비트마다 하나씩
+    tl.set(`.cell:nth-child(${i + 1})`, { autoAlpha: 1 }, t)
+      .fromTo(`.cell:nth-child(${i + 1}) .prod`, { scale: 1.7, y: -60 }, { scale: 1, y: 0, duration: .3, ease: 'power4.in', immediateRender: false }, t)
+      .fromTo(`.cell:nth-child(${i + 1}) .tag`, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .3, ease: 'power3.out', immediateRender: false }, t + .22);
+  });
+  tl.from('#s1 .sum', { y: 46, opacity: 0, duration: .5 }, 2.6);
+  count($('#sumv'), sum, 2.7, 1.05);
+  tl.fromTo('#s1 .sum .v', { scale: 1 }, { scale: 1.07, duration: .14, yoyo: true, repeat: 1, ease: 'power2.inOut', immediateRender: false }, 3.72);
+
+  /* S2 반전 4.0–9.0 */
+  cut('s1', 's2', 4.0, 1.07);
+  drift('s2', 4.0, 5);
+  tl.from('#s2 .kick', { opacity: 0, duration: .4 }, 4.05)
+    .from('#s2 .was', { opacity: 0, y: 26, duration: .4 }, 4.1)
+    .to('#s2 .strike', { scaleX: 1, duration: .3, ease: 'power3.in' }, 4.45)
+    .fromTo('#s2 .tot', { scale: 2.4, opacity: 0 }, { scale: 1, opacity: 1, duration: .34, ease: 'power4.in', immediateRender: false }, 4.8)
+    .to('#stage', { y: 10, duration: .045, repeat: 5, yoyo: true, ease: 'none' }, 5.14)
+    .set('#stage', { y: 0 }, 5.42)
+    .to('#s2 .rule', { scaleX: 1, duration: .5, ease: 'expo.out' }, 5.5)
+    .from('#s2 .line .chip', { y: 40, opacity: 0, duration: .45 }, 5.7);
+  tl.fromTo('#s2 .per', { scale: .55, opacity: 0 }, { scale: 1, opacity: 1, duration: .45, ease: 'back.out(1.4)', immediateRender: false }, 6.4)
+    .to('#stage', { x: 8, duration: .04, repeat: 3, yoyo: true, ease: 'none' }, 6.78)
+    .set('#stage', { x: 0 }, 6.96)
+    .from('#s2 .sub', { opacity: 0, y: 24, duration: .5 }, 7.4);
+
+  /* S3 상품 연타 9.0–16.2 (1.8s × 4) */
+  cut('s2', 's3', 9.0);
+  drift('s3', 9.0, 7.2, 1, 1.03);
+  tl.from('#s3 .head .kicker', { opacity: 0, duration: .4 }, 9.05);
+  lines('#s3 .head .t', 9.1, 0);
+  const perIt = 1.8;
+  $$('#items .it').forEach((el, i) => {
+    const t = 9.35 + i * perIt;
+    const q = s => el.querySelector(s);
+    tl.set(el, { autoAlpha: 1 }, t);
+    if (i > 0) tl.fromTo(`#s3 .cam`, { x: 46 }, { x: 0, duration: .5, ease: 'expo.out', immediateRender: false }, t);
+    tl.fromTo(q('.prod'), { x: i % 2 ? -900 : 900, rotation: i % 2 ? -7 : 7 }, { x: 0, rotation: 0, duration: .42, ease: 'power4.out', immediateRender: false }, t)
+      .fromTo(q('.idx'), { opacity: 0, x: 40 }, { opacity: .16, x: 0, duration: .4, immediateRender: false }, t + .06)
+      .fromTo(q('.cat'), { opacity: 0, y: -30 }, { opacity: .75, y: 0, duration: .4, immediateRender: false }, t + .1)
+      .fromTo(q('.name'), { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: .4, ease: 'power4.out', immediateRender: false }, t + .16)
+      .fromTo(q('.was'), { opacity: 0 }, { opacity: 1, duration: .25, immediateRender: false }, t + .3)
+      .to(q('.strike'), { scaleX: 1, duration: .22, ease: 'power3.in' }, t + .5);
+    stamp(q('.stamp'), t + .78, -6 + (i % 2) * 2);
+    if (i < items.length - 1) tl.to(el, { x: -1080, duration: .3, ease: 'power3.in' }, t + perIt - .26).set(el, { autoAlpha: 0 }, t + perIt + .05);
+  });
+
+  /* S4 250원 포커스 16.2–21.4 */
+  cut('s3', 's4', 16.2, 1.07);
+  drift('s4', 16.2, 5.2);
+  tl.from('#s4 .kick', { opacity: 0, duration: .4 }, 16.25);
+  lines('#s4 .l1', 16.3, 0);
+  tl.fromTo('#s4 .l2', { scale: 2.0, opacity: 0 }, { scale: 1, opacity: 1, duration: .32, ease: 'power4.in', immediateRender: false }, 16.7)
+    .to('#stage', { y: 9, duration: .045, repeat: 3, yoyo: true, ease: 'none' }, 17.0)
+    .set('#stage', { y: 0 }, 17.2)
+    .fromTo('#s4 .coin', { scale: 0, y: -240, opacity: 0 }, { scale: 1, y: 0, opacity: 1, duration: .5, stagger: .09, ease: 'back.out(1.6)', immediateRender: false }, 17.3)
+    .from('#s4 .brow', { x: -70, opacity: 0, stagger: .12, duration: .45 }, 18.1)
+    .to('#s4 .b1 .bfill', { scaleX: 1, duration: .9, ease: 'power3.out' }, 18.4)
+    .to('#s4 .b2 .bfill', { scaleX: CONFIG.total / sum, duration: .9, ease: 'power3.out' }, 18.6);
+  count($('#c1'), sum, 18.4, .9);
+  count($('#c2'), CONFIG.total, 18.6, .9);
+  tl.fromTo('#s4 .down', { scale: 0, rotation: -140 }, { scale: 1, rotation: 8, duration: .5, ease: 'back.out(1.8)', immediateRender: false }, 19.8);
+
+  /* S5 초간단 이용법 21.4–25.4 */
+  cut('s4', 's5', 21.4);
+  drift('s5', 21.4, 4);
+  tl.from('#s5 .kick', { opacity: 0, duration: .4 }, 21.45);
+  lines('#s5 .t', 21.5, 0);
+  tl.from('#s5 .fstep', { y: 90, opacity: 0, stagger: .16, duration: .55, ease: 'power4.out' }, 21.9)
+    .from('#s5 .arrow', { opacity: 0, x: -20, stagger: .16, duration: .35 }, 22.25)
+    .from('#s5 .meta', { opacity: 0, y: 34, duration: .5 }, 23.2)
+    .from('#s5 .note', { opacity: 0, duration: .5 }, 23.8);
+
+  /* S6 엔딩 25.4–30.0 */
+  cut('s5', 's6', 25.4, 1.06);
+  drift('s6', 25.4, 4.6);
+  tl.from('#s6 .kick', { opacity: 0, duration: .3 }, 25.45)
+    .fromTo('#s6 .logoimg', { scale: 1.4, opacity: 0, y: -40 }, { scale: 1, opacity: 1, y: 0, duration: .45, ease: 'power4.out', immediateRender: false }, 25.5)
+    .fromTo('#s6 .wordimg', { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: .4, ease: 'power4.out', immediateRender: false }, 25.7)
+    .from('#s6 .uni', { opacity: 0, letterSpacing: '.9em', duration: .55 }, 25.8);
+  lines('#s6 .big .ln>span', 26.0, .1);
+  tl.fromTo('#s6 .cta', { scale: .4, opacity: 0 }, { scale: 1, opacity: 1, duration: .35, ease: 'back.out(1.6)', immediateRender: false }, 26.3)
+    .to('#s6 .cta', { scale: 1.045, duration: .35, repeat: 2, yoyo: true, ease: 'sine.inOut' }, 26.7)
+    .from('#s6 .meta', { opacity: 0, duration: .4 }, 26.6);
+
+  /* S7 공식 포스터 27.4–30.0 */
+  cut('s6', 's7', 27.4, 1.0);
+  tl.fromTo('#s7 .cam', { opacity: 0, scale: 1.06 }, { opacity: 1, scale: 1, duration: .6, ease: 'expo.out', immediateRender: false }, 27.4)
+    .fromTo('#s7 .cam', { scale: 1 }, { scale: 1.025, duration: 2.0, ease: 'none', immediateRender: false }, 28.0)
+    .to('#s7 .cam', { opacity: 0, duration: .5, ease: 'power1.in' }, 29.45)
+    .set('#s7', { autoAlpha: 0 }, 29.98);
+
+  ['s3','s5','s6'].forEach(id => {
+    const at = { s3: 9.0, s5: 21.4, s6: 25.4 }[id];
+    tl.fromTo(`#${id} .awning`, { yPercent: -110 }, { yPercent: 0, duration: .5, ease: 'power3.out', immediateRender: false }, at + .05);
+  });
+
+  /* 그레인 흔들기 (프레임마다 위치 변경 효과) */
+  for (let t = 0; t < 30; t += .1) {
+    tl.set('#grain', { x: (t * 137) % 60 - 30, y: (t * 251) % 60 - 30 }, t);
+  }
+  return tl;
+}
+
+const RENDER = new URLSearchParams(location.search).has('render');
+if (RENDER) document.body.classList.add('render');
+Promise.all([document.fonts.ready, ...$$('img').map(i => i.complete ? 0 : new Promise(r => i.onload = i.onerror = r))]).then(() => {
+  const tl = build();
+  window.__tl = tl; window.__duration = 30.0;
+  if (RENDER) { tl.pause(0); window.__ready = true; return; }
+  const btn = $('#btnPlay'), bar = $('#prog i');
+  const toggle = () => { tl.paused(!tl.paused()); btn.textContent = tl.paused() ? '▶' : '❚❚'; };
+  btn.onclick = toggle; stage.onclick = toggle;
+  $('#btnRe').onclick = () => { tl.restart(); btn.textContent = '❚❚'; };
+  $('#prog').onclick = e => { const r = e.currentTarget.getBoundingClientRect(); tl.progress((e.clientX - r.left) / r.width); };
+  addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
+  gsap.ticker.add(() => { bar.style.width = (tl.progress() * 100) + '%'; });
+});
+</script>
+</body>
+</html>

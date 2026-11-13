@@ -115,22 +115,22 @@ body{background:#dfe8f0;overflow:hidden;font-family:'Noto Sans KR','Apple SD Got
 
 /* ═════ S4 250원 포커스 (플랫 그린) ═════ */
 #s4 .kick{top:250px}
-#s4 .kick .kicker{color:#bfe8cb}
-#s4 .l1{top:330px;font-size:140px;color:#fff;line-height:1.05}
-#s4 .l2{top:520px;color:#fff;line-height:.95;white-space:nowrap}
+#s4 .l1{top:330px;font-size:140px;color:var(--navy);line-height:1.05}
+#s4 .l2{top:520px;color:var(--green);line-height:.95;white-space:nowrap}
 #s4 .l2 .b{font-size:330px}
 #s4 .l2 .w{font-size:165px}
 #s4 .coinrow{position:absolute;left:0;right:0;top:990px;display:flex;justify-content:center;gap:34px}
-#s4 .coin{width:150px;height:150px;border-radius:50%;background:#fff;
-  display:flex;align-items:center;justify-content:center;color:var(--green-d);font-weight:900;font-size:46px}
+#s4 .coin{width:150px;height:150px;border-radius:50%;background:var(--green);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:46px}
 #s4 .bars{position:absolute;left:110px;right:110px;top:1250px}
 #s4 .brow{margin-bottom:44px}
-#s4 .blab{display:flex;justify-content:space-between;font-size:44px;font-weight:900;color:#d7f2de;margin-bottom:14px}
-#s4 .blab .v{color:#fff}
-#s4 .btrack{height:74px;border-radius:37px;background:rgba(255,255,255,.18);overflow:hidden}
+#s4 .blab{display:flex;justify-content:space-between;font-size:44px;font-weight:900;color:#5e7fae;margin-bottom:14px}
+#s4 .blab .v{color:var(--ink)}
+#s4 .btrack{height:74px;border-radius:37px;background:#e2ecf5;overflow:hidden}
 #s4 .bfill{height:100%;border-radius:37px;transform:scaleX(0);transform-origin:left center}
-#s4 .b1 .bfill{background:#79c491}
-#s4 .b2 .bfill{background:#fff;min-width:74px}
+#s4 .b1 .bfill{background:#8aa3c4}
+#s4 .b2 .bfill{background:var(--green);min-width:74px}
+#s4 .b2 .blab,#s4 .b2 .blab .v{color:var(--green-d)}
 #s4 .down{position:absolute;right:110px;top:1535px;width:210px;height:210px;border-radius:50%;background:var(--orange);color:#fff;
   display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(7deg);z-index:2}
 #s4 .down .p{font-size:84px;line-height:1}
@@ -205,7 +205,7 @@ body.render #ui{display:none}
   </div></section>
 
   <!-- S4 250원 포커스 -->
-  <section class="scene bg-green" id="s4"><div class="cam">
+  <section class="scene bg-paper" id="s4"><div class="cam">
     <p class="abs kick"><span class="kicker">BEST VALUE</span></p>
     <h2 class="abs l1 hl">뭘 골라도</h2>
     <p class="abs l2 hl"><span class="b num">250</span><span class="w">원</span></p>
@@ -317,14 +317,12 @@ function build() {
       onUpdate: () => el.textContent = won(Math.round(o.v / snap) * snap) }, at);
   };
   const stamp = (sel, at, rot = -5) => tl.fromTo(sel,
-    { scale: 2.1, rotation: rot - 10, opacity: 0 },
-    { scale: 1, rotation: rot, opacity: 1, duration: .32, ease: 'power4.in', immediateRender: false }, at)
-    .to('#stage', { x: 7, duration: .04, repeat: 3, yoyo: true, ease: 'none' }, at + .3)
-    .set('#stage', { x: 0 }, at + .48);
-  const cut = (from, to, at, punch = 1.05) => {
-    tl.set('#' + from, { autoAlpha: 0 }, at)
-      .set('#' + to, { autoAlpha: 1 }, at)
-      .fromTo(`#${to} .cam`, { scale: punch }, { scale: 1, duration: .7, ease: 'expo.out', immediateRender: false }, at);
+    { scale: 1.7, rotation: rot - 8, opacity: 0 },
+    { scale: 1, rotation: rot, opacity: 1, duration: .42, ease: 'power4.out', immediateRender: false }, at);
+  const cut = (from, to, at, punch = 1.03) => {
+    tl.fromTo('#' + to, { autoAlpha: 0 }, { autoAlpha: 1, duration: .45, ease: 'power1.inOut', immediateRender: false }, at)
+      .to('#' + from, { autoAlpha: 0, duration: .4, ease: 'power1.out' }, at + .03)
+      .fromTo(`#${to} .cam`, { scale: punch }, { scale: 1, duration: 1.0, ease: 'power3.out', immediateRender: false }, at);
   };
   const drift = (id, at, dur, s1 = 1.03) =>
     tl.fromTo(`#${id} .cam`, { scale: 1 }, { scale: s1, duration: dur, ease: 'none', immediateRender: false }, at);
@@ -340,7 +338,7 @@ function build() {
     const t = .7 + i * .5;
     tl.set(`.cell:nth-child(${i + 1})`, { autoAlpha: 1 }, t)
       .fromTo(`.cell:nth-child(${i + 1})`, { y: 90, scale: .92 }, { y: 0, scale: 1, duration: .35, ease: 'power4.out', immediateRender: false }, t)
-      .fromTo(`.cell:nth-child(${i + 1}) .prod`, { scale: 1.45, y: -40 }, { scale: 1, y: 0, duration: .3, ease: 'power4.in', immediateRender: false }, t)
+      .fromTo(`.cell:nth-child(${i + 1}) .prod`, { scale: 1.3, y: -34 }, { scale: 1, y: 0, duration: .4, ease: 'power4.out', immediateRender: false }, t)
       .fromTo(`.cell:nth-child(${i + 1}) .tag`, { opacity: 0 }, { opacity: 1, duration: .25, immediateRender: false }, t + .22);
   });
   tl.from('#s1 .sum', { y: 46, opacity: 0, duration: .5 }, 2.6);
@@ -355,13 +353,9 @@ function build() {
     .from('#s2 .was', { opacity: 0, y: 26, duration: .4 }, 4.1)
     .to('#s2 .strike', { scaleX: 1, duration: .3, ease: 'power3.in' }, 4.45)
     .fromTo('#s2 .roof svg path', { strokeDasharray: 820, strokeDashoffset: 820 }, { strokeDashoffset: 0, duration: .5, ease: 'power2.inOut', immediateRender: false }, 4.6)
-    .fromTo('#s2 .tot', { scale: 2.2, opacity: 0 }, { scale: 1, opacity: 1, duration: .34, ease: 'power4.in', immediateRender: false }, 4.8)
-    .to('#stage', { y: 10, duration: .045, repeat: 5, yoyo: true, ease: 'none' }, 5.14)
-    .set('#stage', { y: 0 }, 5.42)
+    .fromTo('#s2 .tot', { scale: 1.9, opacity: 0 }, { scale: 1, opacity: 1, duration: .5, ease: 'power4.out', immediateRender: false }, 4.8)
     .from('#s2 .line .pill', { y: 40, opacity: 0, duration: .45 }, 5.7);
-  tl.fromTo('#s2 .per', { scale: .55, opacity: 0 }, { scale: 1, opacity: 1, duration: .45, ease: 'back.out(1.4)', immediateRender: false }, 6.4)
-    .to('#stage', { x: 8, duration: .04, repeat: 3, yoyo: true, ease: 'none' }, 6.78)
-    .set('#stage', { x: 0 }, 6.96)
+  tl.fromTo('#s2 .per', { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, duration: .55, ease: 'back.out(1.3)', immediateRender: false }, 6.4)
     .from('#s2 .sub', { opacity: 0, y: 24, duration: .5 }, 7.4);
 
   /* S3 상품 연타 9.0–16.2 */
@@ -391,16 +385,14 @@ function build() {
   drift('s4', 16.2, 5.2);
   tl.from('#s4 .kick', { opacity: 0, duration: .4 }, 16.25);
   lines('#s4 .l1', 16.3, 0);
-  tl.fromTo('#s4 .l2', { scale: 2.0, opacity: 0 }, { scale: 1, opacity: 1, duration: .32, ease: 'power4.in', immediateRender: false }, 16.7)
-    .to('#stage', { y: 9, duration: .045, repeat: 3, yoyo: true, ease: 'none' }, 17.0)
-    .set('#stage', { y: 0 }, 17.2)
-    .fromTo('#s4 .coin', { scale: 0, y: -240, opacity: 0 }, { scale: 1, y: 0, opacity: 1, duration: .5, stagger: .09, ease: 'back.out(1.6)', immediateRender: false }, 17.3)
+  tl.fromTo('#s4 .l2', { scale: 1.8, opacity: 0 }, { scale: 1, opacity: 1, duration: .5, ease: 'power4.out', immediateRender: false }, 16.7)
+    .fromTo('#s4 .coin', { scale: 0, y: -240, opacity: 0 }, { scale: 1, y: 0, opacity: 1, duration: .5, stagger: .09, ease: 'back.out(1.6)' }, 17.3)
     .from('#s4 .brow', { x: -70, opacity: 0, stagger: .12, duration: .45 }, 18.1)
     .to('#s4 .b1 .bfill', { scaleX: 1, duration: .9, ease: 'power3.out' }, 18.4)
     .to('#s4 .b2 .bfill', { scaleX: CONFIG.total / sum, duration: .9, ease: 'power3.out' }, 18.6);
   count($('#c1'), sum, 18.4, .9);
   count($('#c2'), CONFIG.total, 18.6, .9);
-  tl.fromTo('#s4 .down', { scale: 0, rotation: -140 }, { scale: 1, rotation: 7, duration: .5, ease: 'back.out(1.8)', immediateRender: false }, 19.8);
+  tl.fromTo('#s4 .down', { scale: 0, rotation: -140 }, { scale: 1, rotation: 7, duration: .5, ease: 'back.out(1.8)' }, 19.8);
 
   /* S5 이용법 21.4–25.4 */
   cut('s4', 's5', 21.4);
